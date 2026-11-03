@@ -15,9 +15,16 @@
     chapter: 6,
     title: "break 与 continue",
     pages: "教材 p124–125",
-    sources: ["教材 6.8 p124–125（例6-9、6-10）", "辅导 习题解答 第6章 选择题13、15，读程序4、14 p107–114", "辅导 实验6 填空题(1)(5) p54–56"],
-    updated: "2026-10-29",
+    sources: ["老师 PPT 第06章 p37–44（PPT 6.7 节）", "教材 6.8 p124–125（例6-9、6-10）", "辅导 习题解答 第6章 选择题13、15，读程序4、14 p107–114", "辅导 实验6 填空题(1)(5) p54–56"],
+    updated: "2026-11-03",
     exam: "选择 2 次：break 和 continue 的说法（2018、2014 同一题，答案“只能在循环体内和 switch 语句体内使用 break”）。填空 2 次：1!+3!+…+19!（2017、2014，‹j=1›、‹continue›、‹j›）；素数判断里的 break（2015）。读程序：while 里套 for，含 continue 和 break（2015）。",
+    teacher: {
+      ppt: "PPT 第 37–44 页（PPT 的 6.7 节）",
+      items: [
+        { t: R`^^break 语句只能用在循环语句（while、do-while、for 循环）和开关语句（switch 语句）中^^；^^可使程序提前终止循环而执行循环后面的语句^^`, p: "PPT p38", go: "p1" },
+        { t: R`^^continue 语句只用在 for、while、do-while 等循环体中^^，跳过循环体中剩余的语句，强行执行下一次循环`, p: "PPT p42", go: "p2" }
+      ]
+    },
 
     framework: {
       main: R`break 结束整个（当前这一层）循环，跳到循环后面；continue 只结束本次循环，跳过循环体剩下的语句，去判断下一次（for 里先执行表达式3）。两者都常和 if 连用；break 还能用在 switch 里，continue 只能用在循环里。`,
@@ -47,9 +54,9 @@
         group: "一、break",
         items: [
           {
-            id: "p1", kind: "规则", name: "break 语句", page: "教材 p124",
+            id: "p1", th: "PPT p38–41", kind: "规则", name: "break 语句", page: "教材 p124",
             body: R`break ==只能用在循环语句和 switch 语句中==。用在循环里：==提前终止循环==，执行循环后面的语句；通常和 if 连用，满足条件就跳出。==break 对 if…else 没有跳出作用==；==多层循环中一个 break 只向外跳一层==。`,
-            notes: [R`‹while(1)› 加 break 是常见写法：循环条件永远成立，靠 break 退出（例6-9）`],
+            notes: [R`‹while(1)› 加 break 是常见写法：循环条件永远成立，靠 break 退出（例6-9）`, R`老师原话（PPT p38）：^^break 语句只能用在循环语句（while、do-while、for 循环）和开关语句（switch 语句）中^^；^^可使程序提前终止循环而执行循环后面的语句^^`],
             quiz: R`两层循环，内层里执行了 break，外层还会继续吗？`
           }
         ]
@@ -58,13 +65,13 @@
         group: "二、continue",
         items: [
           {
-            id: "p2", kind: "规则", name: "continue 语句", page: "教材 p125",
+            id: "p2", th: "PPT p42–44", kind: "规则", name: "continue 语句", page: "教材 p125",
             body: R`continue ==跳过循环体中剩余的语句==，强行去判断执行下一次循环；==只能用在 for、while、do…while 循环体中==（不能用在 switch 里单独起作用）。在 while、do…while 里直接去判断条件；==在 for 里先执行表达式3 再判断==。`,
-            notes: [R`例6-10：按 Esc 键时 ‹continue›，既不计数也不输出，进入下一次循环`],
+            notes: [R`例6-10：按 Esc 键时 ‹continue›，既不计数也不输出，进入下一次循环`, R`老师原话（PPT p42）：^^continue 语句只用在 for、while、do-while 等循环体中^^，跳过循环体中剩余的语句，强行执行下一次循环`],
             quiz: R`‹for(i=1;i<=5;i++) { if(i%2==0) continue; printf("%d",i); }› 输出什么？`
           },
           {
-            id: "p3", kind: "结论", name: "break 和 continue 的说法辨析", page: "教材 p124–126；辅导 选择题15",
+            id: "p3", th: "PPT p38–42", kind: "结论", name: "break 和 continue 的说法辨析", page: "教材 p124–126；辅导 选择题15",
             body: R`正确：只能在循环体内和 switch 语句体内使用 break。错误：continue 结束整个循环（只结束本次）；break 和 continue 作用相同；从多层循环中退出只能用 goto。`,
             notes: [],
             quiz: R`“在循环体内使用 break 和 continue 语句的作用相同”对吗？`
@@ -254,7 +261,7 @@ int main(void)
         practice: "教材 例6-9、例6-10（p124–125）"
       },
       {
-        id: "t6", kind: "辨析", nocheck: "判断题", name: "关于 break 和 continue 的说法",
+        id: "t6", th: "PPT p38–42", kind: "辨析", nocheck: "判断题", name: "关于 break 和 continue 的说法",
         signal: R`四个选项分别描述 break、continue、goto 的作用`,
         example: { q: R`以下叙述正确的是（ ）。`, src: "辅导 习题解答 第6章 选择题15 p108；教材 习题 选择题15 p142" },
         idea: {

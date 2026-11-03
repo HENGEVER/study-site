@@ -15,9 +15,17 @@
     chapter: 6,
     title: "goto 语句",
     pages: "教材 p117–118",
-    sources: ["教材 6.3 p117–118（例6-2）", "辅导 习题解答 第6章 选择题15 p108"],
-    updated: "2026-10-29",
+    sources: ["老师 PPT 第06章 p5–7（PPT 6.2 节）", "教材 6.3 p117–118（例6-2）", "辅导 习题解答 第6章 选择题15 p108"],
+    updated: "2026-11-03",
     exam: "没有单独考 goto；“从多层循环嵌套中退出只能用 goto”这个错误说法出过选择题（2018、2014 关于 break/continue 的题）。",
+    teacher: {
+      ppt: "PPT 第 5–7 页（PPT 的 6.2 节）",
+      items: [
+        { t: R`^^goto 语句标号 ;^^，标号是标识符^^加上一个“:”一起出现在函数内某处^^`, p: "PPT p5", go: "p1" },
+        { t: R`例6-1 红线：‹label1:› 加 ‹if(i<=100) goto label1;› 构成循环`, p: "PPT p6（红线）", go: "t1" },
+        { t: R`一般不用 goto，^^但在多层嵌套退出时，用 goto 语句则比较合理^^`, p: "PPT p7", go: "p2" }
+      ]
+    },
 
     framework: {
       main: R`goto 是无条件转移：跳到同一函数里的某个标号处继续执行。和 if 连用可以构成循环，但会让程序层次不清，一般不用；只在要一次跳出多层循环时才比较合理。`,
@@ -42,15 +50,15 @@
         group: "一、用法",
         items: [
           {
-            id: "p1", kind: "定义", name: "goto 语句和标号", page: "教材 p117",
+            id: "p1", th: "PPT p5", kind: "定义", name: "goto 语句和标号", page: "教材 p117",
             body: R`格式：‹goto 语句标号;›。标号是一个合法的标识符，加上冒号放在函数内某处（如 ‹label1:›）；执行 goto 后程序跳到标号处继续执行。==标号必须和 goto 在同一个函数里==，可以不在同一层循环中。通常和 if 连用。`,
-            notes: [],
+            notes: [R`老师原话（PPT p5）：^^goto 语句标号 ;^^，标号是标识符^^加上一个“:”一起出现在函数内某处^^`],
             quiz: R`标号的写法是什么？`
           },
           {
-            id: "p2", kind: "结论", name: "为什么一般不用 goto", page: "教材 p118；第2章 p22",
+            id: "p2", th: "PPT p7", kind: "结论", name: "为什么一般不用 goto", page: "教材 p118；第2章 p22",
             body: R`goto 会使程序==层次不清、不易读==，结构化程序设计要求==限制使用 goto==；但在==多层嵌套退出==时用 goto 比较合理。`,
-            notes: [],
+            notes: [R`老师原话（PPT p7）：一般不用 goto，^^但在多层嵌套退出时，用 goto 语句则比较合理^^`],
             quiz: R`“从多层循环嵌套中退出，只能使用 goto 语句”对吗？`
           }
         ]
@@ -59,7 +67,7 @@
 
     types: [
       {
-        id: "t1", kind: "读程序", output: "5050\n", name: "goto 加 if 构成循环（例6-2）",
+        id: "t1", th: "PPT p6", kind: "读程序", output: "5050\n", name: "goto 加 if 构成循环（例6-2）",
         signal: R`程序里有标号和 goto，往回跳`,
         example: {
           q: R`写出程序的输出：
