@@ -275,6 +275,19 @@ span.wr { color: #b32d2d; background: #fbe3e3; border-radius: 3px; padding: 0 3p
 .badge-k { font-size: 12px; font-weight: 700; padding: 0 7px; border-radius: 4px; line-height: 20px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
 .exam-line { margin: 8px 0 0; padding: 6px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 var(--r) var(--r) 0; font-size: 13px; }
 .exam-line b { margin-right: 6px; }
+/* 老师 PPT 标红：^^原话^^ 红字加红下划线；每节开头「老师标红」清单；知识点、题型卡上的「师」标 */
+span.th { color: #c01f1f; font-weight: 600; text-decoration: underline 2px #e06666; text-underline-offset: 3px; text-decoration-skip-ink: none; }
+.th-panel { margin: 10px 0 0; padding: 8px 14px 10px; border-left: 3px solid #c01f1f; background: #fdf0f0; border-radius: 0 var(--r) var(--r) 0; font-size: 14px; }
+.th-panel summary { cursor: pointer; font-weight: 700; color: #a01818; }
+.th-panel summary .note { font-weight: 400; margin-left: 6px; }
+.th-panel ol { margin: 6px 0 0; padding-left: 1.4em; }
+.th-panel li { margin: 3px 0; line-height: 1.65; }
+.th-panel li[data-go] { cursor: pointer; }
+.th-panel li[data-go]:hover .th-t { text-decoration: underline; }
+.th-panel .th-pg { margin-left: 6px; font: 11.5px var(--f-mono); color: var(--muted); white-space: nowrap; }
+.badge-th { display: inline-block; font-size: 11.5px; padding: 0 6px; border-radius: 10px; background: #c01f1f; color: #fff; font-weight: 700; white-space: nowrap; width: max-content; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) span.th { color: #ff8f8f; text-decoration-color: #ff8f8f; } :root:not([data-theme="light"]) .th-panel { background: #3a1c1c; border-left-color: #ff8f8f; } :root:not([data-theme="light"]) .th-panel summary { color: #ffb0b0; } }
+:root[data-theme="dark"] span.th { color: #ff8f8f; text-decoration-color: #ff8f8f; } :root[data-theme="dark"] .th-panel { background: #3a1c1c; border-left-color: #ff8f8f; } :root[data-theme="dark"] .th-panel summary { color: #ffb0b0; }
 .out-box { margin: 0; }
 .trace-wrap { overflow-x: auto; }
 .trace { border-collapse: collapse; font: 13px var(--f-mono); min-width: 60%; }
@@ -871,7 +884,7 @@ function md(s) {
   s = s.replace(/(```|~~~)[a-zA-Z]*\n?([\s\S]*?)\1/g, (m, f, body) => { blocks.push(`<pre class="code"><code>${esc(body.replace(/\n$/, ""))}</code></pre>`); return `\x00${blocks.length - 1}\x00`; });
   const ics = [];
   let html = esc(s).replace(/`([^`]+?)`|‹([^›]+?)›/g, (m, a, b) => { ics.push(`<code class="ic">${a || b}</code>`); return `\x01${ics.length - 1}\x01`; });
-  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/==([^=\s](?:[^=]*?[^=\s])?)==/g, '<mark class="hl">$1</mark>').replace(/!!([^!]+?)!!/g, '<span class="wr">$1</span>');
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/==([^=\s](?:[^=]*?[^=\s])?)==/g, '<mark class="hl">$1</mark>').replace(/!!([^!]+?)!!/g, '<span class="wr">$1</span>').replace(/\^\^(.+?)\^\^/g, '<span class="th" title="老师 PPT 上标红的原话">$1</span>');
   html = html.replace(/\x01(\d+)\x01/g, (m, i) => ics[i]);
   return html.replace(/\x00(\d+)\x00/g, (m, i) => blocks[i]);
 }
@@ -1024,6 +1037,7 @@ function renderSection(d, isEnd) {
     <div class="meta"><span class="pg">${esc(d.pages || "")}</span><span>更新 ${esc(d.updated || "")}</span></div>
     <div class="meta" style="margin-top:4px">${(d.sources || []).map(s => `<span>${esc(s)}</span>`).join("")}</div>
     ${d.exam ? `<div class="exam-line"><b>真题考法</b>${md(d.exam)}</div>` : ""}
+    ${d.teacher ? thHtml(d) : ""}
     ${d.exampleMap ? exmapHtml(d) : ""}
     ${d.mindmap ? mindHtml(d) : ""}
     ${d.framework && d.framework.nodes ? frameHtml(d) : ""}
@@ -1038,9 +1052,19 @@ function renderSection(d, isEnd) {
   $$(".tab").forEach(b => b.addEventListener("click", () => { curTab = b.dataset.tab; store.ui.tab = curTab; save(); showTab(d); }));
   if (d.framework && d.framework.nodes) bindFrame(d);
   if (d.mindmap) { bindGo(d, $(".mm-wrap")); bindMm(); }
+  const thp = $("[data-thp]"); if (thp) thp.addEventListener("toggle", () => { store.ui.thOpen = thp.open; rawSave(); });
   showTab(d, true);
   bindGo(d, $("#main"));
 }
+/* 老师标红：teacher: { ppt: "PPT 第 5–29 页", items: [{ t: "原话或要点", p: "PPT p15", go: "p3" }] }；点一条跳到对应知识点或题型 */
+function thHtml(d) {
+  const T = d.teacher, items = T.items || [];
+  if (!items.length) return "";
+  const open = uiFlag("thOpen", true);
+  return `<details class="th-panel" data-thp${open ? " open" : ""}><summary>老师标红<span class="note">${esc(T.ppt || "")} · ${items.length} 条，点一条跳到对应内容</span></summary>
+    <ol>${items.map(x => `<li${x.go ? ` data-go="${qa(x.go)}" role="link" tabindex="0"` : ""}><span class="th-t">${md(x.t)}</span><span class="th-pg">${esc(x.p || "")}</span></li>`).join("")}</ol></details>`;
+}
+const thBadge = x => x && x.th ? `<span class="badge-th" title="老师 PPT 上标红讲过">师 ${esc(x.th)}</span>` : "";
 /* 小节页：章末里和本节相关的拓展题型 */
 function secLinksHtml(d, isEnd) {
   const endD = KB.chapterEnds[d.chapter];
@@ -1226,7 +1250,7 @@ function pointsHtml(d) {
   return `<div class="toolbar">${toggle("coverPts", "线索自测", cover, "每条只露出开头，先回忆后面的细节，再点击显示")}</div>
   <div class="${cover ? "cover-on" : ""}" data-cover="coverPts">${(d.points || []).map(g => `<section class="group"><h3>${esc(g.group)}</h3>${g.items.map(p => `
     <div class="pt ci" data-id="${p.id}">
-      <div class="pt-side"><span class="kind k-${esc(p.kind)}">${esc(p.kind)}</span><span class="pg-mono">${esc(p.page || "")}</span></div>
+      <div class="pt-side"><span class="kind k-${esc(p.kind)}">${esc(p.kind)}</span><span class="pg-mono">${esc(p.page || "")}</span>${thBadge(p)}</div>
       <div>
         <div class="pt-name">${md(p.name)} <span class="reveal-hint">点击显示</span>${p.notes && p.notes.length ? `<span class="cue-n">　含 ${p.notes.length} 条补充</span>` : ""}</div>
         ${bodyHtml(d.id + "/" + p.id, p)}
@@ -1282,6 +1306,7 @@ function typesHtml(d) {
   const key = t => d.id + "/" + t.id;
   const show = types.filter(t => {
     if (filter === "yan") return t.tag === "拓";
+    if (filter === "th") return !!t.th;
     if (filter === "final") return t.level === "期末";
     if (filter.startsWith("b:")) return t.block === filter.slice(2);
     if (filter === "todo") { const s = statusOf(key(t)); return s.cls !== "s-learned" && s.cls !== "s-ok"; }
@@ -1289,13 +1314,13 @@ function typesHtml(d) {
   });
   const cover = uiFlag("coverIdea", true), doOn = uiFlag("doMode", false);
   const fbtn = (v, label) => `<button class="chip" type="button" data-f="${v}" aria-pressed="${filter === v}">${label}</button>`;
-  return `<div class="toolbar"><div class="chips">${types.some(t => t.level) ? fbtn("final", "期末必会 " + types.filter(t => t.level === "期末").length) : ""}${fbtn("all", "全部")}${fbtn("todo", "还没掌握")}${types.some(t => t.tag === "拓") ? fbtn("yan", "拓") : ""}${(d.blocks || []).map(b => fbtn("b:" + b.id, b.name)).join("")}</div>
+  return `<div class="toolbar"><div class="chips">${types.some(t => t.level) ? fbtn("final", "期末必会 " + types.filter(t => t.level === "期末").length) : ""}${fbtn("all", "全部")}${types.some(t => t.th) ? fbtn("th", "老师讲过 " + types.filter(t => t.th).length) : ""}${fbtn("todo", "还没掌握")}${types.some(t => t.tag === "拓") ? fbtn("yan", "拓") : ""}${(d.blocks || []).map(b => fbtn("b:" + b.id, b.name)).join("")}</div>
     ${toggle("coverIdea", "遮住通法", cover)}${toggle("doMode", "做完模式", doOn)}
     <div class="tally" id="tally">${tallyHtml(d)}</div></div>
   ${doOn ? `<p class="note do-tip">做完模式：在 GoodNotes 里写完整过程（可以点「计时」），写完再点「对照答案」。全对才点 ✓，看了答案、写错、卡住都点 ✗。</p>` : ""}<div class="cards ${cover ? "cover-on" : ""}${doOn ? " do-on" : ""}" data-cover="coverIdea">${show.length ? show.map(t => {
     const i = types.indexOf(t) + 1, k = key(t);
     return `<article class="tcard panel" data-key="${k}">
-      <div class="tc-head"><span class="tc-no">题型 ${i}</span>${t.kind ? `<span class="badge-k">${esc(t.kind)}</span>` : ""}<span class="tc-name">${md(t.name)}</span>${t.level ? `<span class="badge-t lv-${t.level === "期末" ? "f" : "u"}">${esc(t.level)}</span>` : ""}${t.block && d.blocks ? `<span class="badge-b">${esc((d.blocks.find(b => b.id === t.block) || {}).name || "")}</span>` : ""}${t.tag === "拓" ? `<span class="badge-t yan">拓</span>` : ""}</div>
+      <div class="tc-head"><span class="tc-no">题型 ${i}</span>${t.kind ? `<span class="badge-k">${esc(t.kind)}</span>` : ""}<span class="tc-name">${md(t.name)}</span>${t.level ? `<span class="badge-t lv-${t.level === "期末" ? "f" : "u"}">${esc(t.level)}</span>` : ""}${t.block && d.blocks ? `<span class="badge-b">${esc((d.blocks.find(b => b.id === t.block) || {}).name || "")}</span>` : ""}${t.tag === "拓" ? `<span class="badge-t yan">拓</span>` : ""}${thBadge(t)}</div>
       <div class="tc-body">
         <div class="row sig"><span class="lab">看到</span><div>${md(t.signal)}</div></div>
         <div class="row"><span class="lab">例题</span><div>${md(t.example.q)}<div class="src">${esc(t.example.src)}</div></div></div>
