@@ -21,7 +21,7 @@
     title: "矩阵的秩和线性方程组",
     pages: "教材 p35–41",
     sources: ["教材 1.5 p35–41", "30讲 第2讲 八「矩阵的秩」p73–74（例2.19–2.20）、习题2.5–2.6（p75–76，解答 p78–79）", "30讲 第4讲「有解的条件」p116–117、p123，例4.6–4.8（p124–125）", "9讲 第4讲 矩阵的秩 p42–49", "李永乐 第2章 主要公式「秩」p38、「矩阵秩的计算」例2.27–2.30（p58–61）；第4章 定理4.2–4.5（p101–102）、例4.6（p109）、例4.11–4.13（p114–115）", "1000题基础篇 第1章 第7题；第2章 第14、15、19题；第4章 第1、3、10、15题"],
-    updated: "2026-10-27",
+    updated: "2026-11-05",
 
     framework: {
       main: R`秩是矩阵里「真正起作用的行数」：最高阶非零子式的阶数。初等变换不改变秩，所以化成行阶梯形、数非零行就得到秩。拿系数矩阵 $A$ 和增广矩阵 $B$ 的秩一比，方程组无解、唯一解、无穷多解就分清了；齐次方程组有非零解 $\Leftrightarrow r(A)<n$，方阵时 $\Leftrightarrow|A|=0$。`,
@@ -122,6 +122,15 @@
               R`还有 $A_{m\times n}B_{n\times s}=O\Rightarrow r(A)+r(B)\leqslant n$，见本节题型 8（30讲 第2讲 p74 ⑦）`
             ],
             quiz: R`4 阶方阵 $r(A)=3$，$r(A^*)$ 是几？`
+          },
+          {
+            id: "p14", kind: "结论", name: "秩为 1 的矩阵", page: "",
+            body: R`$r(A)=1\Leftrightarrow$ 存在==非零列向量 $\alpha,\beta$，使 $A=\alpha\beta^{\mathrm T}$==。也就是：$A\neq O$，且各行都是同一行的倍数（各列都是同一列的倍数）。`,
+            notes: [
+              R`$\Rightarrow$：$r(A)=1$ 时有可逆 $P,Q$ 使 $A=P\begin{pmatrix}1&0\\0&O\end{pmatrix}Q$，而 $\begin{pmatrix}1&0\\0&O\end{pmatrix}=\begin{pmatrix}1\\0\\\vdots\end{pmatrix}(1\ 0\ \cdots)$，取 ==$\alpha$ 为 $P$ 的第一列、$\beta^{\mathrm T}$ 为 $Q$ 的第一行==。$\Leftarrow$：$\alpha\beta^{\mathrm T}$ 的第 $i$ 行是 $a_i\beta^{\mathrm T}$，各行成比例且不全为 0，秩为 1`,
+              R`用处：==$A^n=(\beta^{\mathrm T}\alpha)^{n-1}A$==，$\beta^{\mathrm T}\alpha$ 等于 $A$ 主对角元之和。例：$A=\begin{pmatrix}1&2&3\\2&4&6\\3&6&9\end{pmatrix}=\begin{pmatrix}1\\2\\3\end{pmatrix}(1\ 2\ 3)$，$\beta^{\mathrm T}\alpha=14$，$A^n=14^{n-1}A$（求法见 1.1 题型 3）`
+            ],
+            quiz: R`$\begin{pmatrix}2&-1\\-4&2\end{pmatrix}$ 的秩是几？把它写成 $\alpha\beta^{\mathrm T}$。`
           }
         ]
       },
@@ -134,7 +143,8 @@
             notes: [
               R`==$r(A)<r(B)$ 就无解==：此时阶梯形里出现 $(0\ \cdots\ 0\mid c)$，$c\neq0$，对应矛盾方程 $0=c$（证明 p37）`,
               R`$B$ 只比 $A$ 多一列，所以 ==$r(A)\leqslant r(B)\leqslant r(A)+1$==；无解 $\Leftrightarrow r(B)=r(A)+1$（李永乐 第4章 定理4.5 p102）`,
-              R`判断唯一还是无穷多，比的是 ==未知数个数 $n$==，不是方程个数 $m$`
+              R`判断唯一还是无穷多，比的是 ==未知数个数 $n$==，不是方程个数 $m$`,
+              R`==增广矩阵的秩 = 方程组里「有效」方程的个数==：消元后剩下的非零行才是真正的约束，多出来的方程是其余方程的组合。$r(A)<r(B)$ 说明消元后出现了 $0=1$ 这样的矛盾方程`
             ],
             quiz: R`4 个方程、3 个未知数，$r(A)=r(B)=3$，方程组有几个解？`
           },
@@ -430,7 +440,8 @@
       { id: "e14", wrong: R`自由未知量随便挑，挑了首元列对应的未知数`, why: R`首元列的未知数要用其余未知数表示，不能任意取值`, right: R`首元所在列之外的未知数取作自由未知量，共 $n-r$ 个`, test: R`行最简形 $\begin{pmatrix}1&0&2\\0&1&-1\end{pmatrix}$（齐次），自由未知量是哪个？`, ans: R`$x_3$；$x_1=-2k$，$x_2=k$，$x_3=k$`, link: "题型 5" },
       { id: "e15", wrong: R`$r(AB)=r(A)$ 总成立`, why: R`只有 $B$ 可逆（或行满秩）时才取等；一般只有 $r(AB)\leqslant\min\{r(A),r(B)\}$`, right: R`先判断 $B$ 是否可逆`, test: R`$A=E_2$，$B=\begin{pmatrix}1&0\\0&0\end{pmatrix}$，$r(AB)$ 与 $r(A)$？`, ans: R`$r(AB)=1$，$r(A)=2$`, link: "题型 7" },
       { id: "e16", wrong: R`$r(A)=n-1$，所以 $r(A^*)=n-1$`, why: R`伴随矩阵的秩只有 $n,1,0$ 三种`, right: R`$r(A)=n-1\Rightarrow r(A^*)=1$；$r(A)<n-1\Rightarrow A^*=O$`, test: R`4 阶 $r(A)=2$，$r(A^*)=$？`, ans: R`0（教材 练习题1.5 第2题）`, link: "题型 9" },
-      { id: "e18", wrong: R`秩相同的两个矩阵一定等价`, why: R`等价要求同型`, right: R`同型矩阵等价 $\Leftrightarrow$ 秩相等`, test: R`$(1\ 0)$ 与 $\begin{pmatrix}1\\0\end{pmatrix}$ 秩都为 1，等价吗？`, ans: R`不等价，一个 $1\times2$、一个 $2\times1$`, link: "知识点 秩与等价标准形" }
+      { id: "e18", wrong: R`秩相同的两个矩阵一定等价`, why: R`等价要求同型`, right: R`同型矩阵等价 $\Leftrightarrow$ 秩相等`, test: R`$(1\ 0)$ 与 $\begin{pmatrix}1\\0\end{pmatrix}$ 秩都为 1，等价吗？`, ans: R`不等价，一个 $1\times2$、一个 $2\times1$`, link: "知识点 秩与等价标准形" },
+      { id: "e19", wrong: R`可能有非零的 3 阶子式、4 阶子式全为 0，却又有非零的 5 阶子式`, why: R`5 阶子式按一行展开，每一项都是一个数乘一个 4 阶子式；4 阶子式全为 0，5 阶子式也全为 0`, right: R`==所有 $k$ 阶子式为 0，则所有更高阶的子式都为 0==。所以「有一个 $k$ 阶子式不为 0，所有 $k+1$ 阶子式都为 0」就定出 $r(A)=k$`, test: R`6 阶方阵 $A$ 的所有 4 阶子式都为 0，$|A|$ 等于多少？$r(A)$ 最大是几？`, ans: R`$|A|=0$，$r(A)\leqslant3$`, link: "知识点 矩阵的秩" }
     ]
   });
 })();

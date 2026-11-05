@@ -20,7 +20,7 @@
     title: "逆矩阵和行列式",
     pages: "教材 p10–15",
     sources: ["教材 1.2 p10–15", "30讲 第2讲 三「逆矩阵」p57–58、四「伴随矩阵」p59–62，例2.4–2.11", "30讲 第1讲 一「本质定义」p13–14、四「展开定理」p21–22、五「几个重要的行列式」p22–24", "李永乐 第2章 例2.10 p46", "1000题基础篇 第2章 第4、5、17题"],
-    updated: "2026-10-25",
+    updated: "2026-11-05",
 
     framework: {
       main: R`逆矩阵是矩阵的「除法」，但只有方阵、且行列式不为 0 时才有。行列式按第一行展开、逐级降阶来定义；伴随矩阵把代数余子式排起来，用 $AA^*=|A|E$ 把行列式和逆矩阵连在一起。`,
@@ -174,7 +174,8 @@ $$A^{-1}=\frac{1}{|A|}A^*,\qquad \begin{pmatrix}a&b\\c&d\end{pmatrix}^{-1}=\frac
             notes: [
               R`反过来也成立：$A$ 可逆 $\Rightarrow|A|\neq0$，由 1.3 节 $|AB|=|A||B|$ 得到（教材 p18），所以 ==$A$ 可逆 $\Leftrightarrow|A|\neq0$==`,
               R`例1.13：$\begin{pmatrix}1&2\\3&4\end{pmatrix}^{-1}=\begin{pmatrix}-2&1\\\frac32&-\frac12\end{pmatrix}$（p15）`,
-              R`==验证逆矩阵只需验一边==：方阵 $AB=E$ 就说明 $A$ 可逆、$B=A^{-1}$（30讲 第2讲 p57「定义法」）`
+              R`==验证逆矩阵只需验一边==：方阵 $AB=E$ 就说明 $A$ 可逆、$B=A^{-1}$（30讲 第2讲 p57「定义法」）`,
+              R`例：旋转矩阵 $\Theta=\begin{pmatrix}\cos\theta&-\sin\theta\\\sin\theta&\cos\theta\end{pmatrix}$，$|\Theta|=1$，$\Theta^{-1}=\begin{pmatrix}\cos\theta&\sin\theta\\-\sin\theta&\cos\theta\end{pmatrix}=\Theta^{\mathrm T}$。几何上 $\Theta$ 把平面向量==逆时针转 $\theta$==，它的逆就是==转回去==（转 $-\theta$）`
             ],
             quiz: R`用公式写出 $\begin{pmatrix}2&-3\\1&-2\end{pmatrix}^{-1}$，再乘回去检验。`
           },
@@ -279,6 +280,44 @@ $$A^{-1}=\frac{1}{|A|}A^*,\qquad \begin{pmatrix}a&b\\c&d\end{pmatrix}^{-1}=\frac
         ],
         pitfall: R`!!把 4 阶副对角当成「乘积再取负」!!（那是 2、3 阶的情形）；或!!用三阶对角线法则硬套四阶!!`,
         practice: "教材 例1.10、例1.11（p12–13）；30讲 第1讲 p22–23 的「12+1」型"
+      },
+      {
+        id: "t6", name: "幂零矩阵：Aᵏ = O 时求 (E − A)⁻¹",
+        signal: R`已知 ==$A^k=O$==（幂零矩阵），要证 ==$E-A$ 或 $E+A$ 可逆==并求逆`,
+        example: { q: R`设 $A$ 为 $n$ 阶矩阵，$A^3=O$。证明 $E-A$ 和 $E+A$ 都可逆，并求它们的逆。`, src: "课堂例题" },
+        idea: {
+          key: R`仿照数的公式 ==$1-x^k=(1-x)(1+x+\cdots+x^{k-1})$==：$E-A^k=(E-A)(E+A+\cdots+A^{k-1})$，再用 $A^k=O$`,
+          how: [R`++写出因式分解++：$A$ 和 $E$ 可交换，所以能像数一样分解 $E-A^k=(E-A)(E+A+\cdots+A^{k-1})$`, R`++代入 $A^k=O$++：左边变成 $E$`, R`++读出逆++：$(E-A)^{-1}=E+A+\cdots+A^{k-1}$；$E+A$ 换成 $-A$ 代入，各项正负交替`]
+        },
+        think: R`求逆用定义：找 $X$ 使 $(E-A)X=E$。条件只有 $A^3=O$，联想等比数列求和 $1-x^3=(1-x)(1+x+x^2)$，矩阵里 $E$ 和 $A$ 可交换，这个分解照样成立`,
+        first: R`写出 $(E-A)(E+A+A^2)=E-A^3$`,
+        steps: [
+          R`++分解++：$(E-A)(E+A+A^2)=E+A+A^2-A-A^2-A^3=E-A^3$`,
+          R`++代入条件++：$A^3=O$，所以 $(E-A)(E+A+A^2)=E$，$E-A$ 可逆，==$(E-A)^{-1}=E+A+A^2$==`,
+          R`++同理求 $E+A$++：$(E+A)(E-A+A^2)=E+A^3=E$，所以 ==$(E+A)^{-1}=E-A+A^2$==`,
+          R`++检验一个例子++：$A=\begin{pmatrix}0&1&0\\0&0&1\\0&0&0\end{pmatrix}$ 满足 $A^3=O$，$E+A+A^2=\begin{pmatrix}1&1&1\\0&1&1\\0&0&1\end{pmatrix}$，乘 $E-A=\begin{pmatrix}1&-1&0\\0&1&-1\\0&0&1\end{pmatrix}$ 正好得 $E$`
+        ],
+        pitfall: R`!!写成 $(E-A)^{-1}=\frac{E}{E-A}$!!；!!$(E+A)^{-1}$ 写成 $E+A+A^2$!!，正负号要交替`,
+        practice: "自己验证：A 取 2 阶的 (0 1; 0 0) 时 (E−A)⁻¹ = E + A"
+      },
+      {
+        id: "t7", name: "已知 AP = PΛ（Λ 是对角矩阵），求 Aⁿ",
+        signal: R`给出可逆矩阵 $P$ 和==对角矩阵 $\Lambda$==，满足 $AP=P\Lambda$，求 $A^n$`,
+        example: { q: R`设 $P=\begin{pmatrix}1&2\\1&3\end{pmatrix}$，$\Lambda=\begin{pmatrix}1&0\\0&2\end{pmatrix}$，$AP=P\Lambda$，求 $A^n$。`, src: "课后作业" },
+        idea: {
+          key: R`==$A=P\Lambda P^{-1}$==，连乘时中间的 $P^{-1}P$ 全部抵消：==$A^n=P\Lambda^nP^{-1}$==；对角矩阵的幂只要把主对角元各自乘方`,
+          how: [R`++右乘 $P^{-1}$++：由 $AP=P\Lambda$ 得 $A=P\Lambda P^{-1}$`, R`++连乘抵消++：$A^n=(P\Lambda P^{-1})(P\Lambda P^{-1})\cdots(P\Lambda P^{-1})=P\Lambda^nP^{-1}$`, R`++算三个矩阵的乘积++：求 $P^{-1}$，写出 $\Lambda^n$，按顺序相乘`]
+        },
+        think: R`直接算 $A^2,A^3$ 找规律很难看出来；题目给了 $AP=P\Lambda$，就是要把 $A$ 换成对角矩阵来乘方。第三章「相似对角化」就是这个想法`,
+        first: R`$A=P\Lambda P^{-1}$，所以 $A^n=P\Lambda^nP^{-1}$`,
+        steps: [
+          R`++求 $P^{-1}$++：$|P|=1$，$P^{-1}=\begin{pmatrix}3&-2\\-1&1\end{pmatrix}$`,
+          R`++写出 $\Lambda^n$++：$\Lambda^n=\begin{pmatrix}1&0\\0&2^n\end{pmatrix}$`,
+          R`++相乘++：$P\Lambda^n=\begin{pmatrix}1&2^{n+1}\\1&3\cdot2^n\end{pmatrix}$，$A^n=P\Lambda^nP^{-1}=\begin{pmatrix}3-2^{n+1}&2^{n+1}-2\\3-3\cdot2^n&3\cdot2^n-2\end{pmatrix}$`,
+          R`++检验++：$n=1$ 时得 $A=\begin{pmatrix}-1&2\\-3&4\end{pmatrix}$，确实满足 $AP=P\Lambda$`
+        ],
+        pitfall: R`!!把 $A$ 写成 $P^{-1}\Lambda P$!!（由 $AP=P\Lambda$ 右乘 $P^{-1}$，得到的是 $P\Lambda P^{-1}$）；!!写成 $A^n=P^n\Lambda^n(P^{-1})^n$!!`,
+        practice: "1.1 题型 3、4、5 是另外三种求 Aⁿ 的办法，比较什么时候用哪种"
       },
       {
         id: "t5", name: "研 · 用 AA* = |A|E 求伴随矩阵或它的逆",

@@ -20,7 +20,7 @@
     title: "矩阵概述",
     pages: "教材 p1–10",
     sources: ["教材 1.1 p1–10", "30讲 第2讲 二「矩阵的定义与基本运算」p51–56，例2.1–2.3", "李永乐 第2章「矩阵运算」p39–42，例2.1–2.4", "1000题基础篇 第2章 第1、2、3、18题"],
-    updated: "2026-10-25",
+    updated: "2026-11-05",
 
     framework: {
       main: R`矩阵是一张按位置排好的数表。同型才能相加，左边的列数等于右边的行数才能相乘；乘法没有交换律和消去律，所以幂、转置、展开式都要守住先后顺序。`,
@@ -94,7 +94,8 @@
             body: R`$n$ 阶方阵 $A=(a_{ij})$ 中，==$a_{ij}=a_{ji}$ 对所有 $i,j$ 成立叫对称矩阵==，==$a_{ij}=-a_{ji}$ 叫反对称矩阵==。等价写法：==$A$ 对称 $\Leftrightarrow A^{\mathrm T}=A$==，$A$ 反对称 $\Leftrightarrow A^{\mathrm T}=-A$（性质1.5(6)）。`,
             notes: [
               R`==反对称矩阵的主对角元全为 0==：由 $a_{ii}=-a_{ii}$ 得 $a_{ii}=0$（30讲 第2讲 p53）`,
-              R`对任何矩阵 $A$（不必是方阵），==$A^{\mathrm T}A$ 和 $AA^{\mathrm T}$ 都是对称矩阵==（30讲 第2讲 p53）`
+              R`对任何矩阵 $A$（不必是方阵），==$A^{\mathrm T}A$ 和 $AA^{\mathrm T}$ 都是对称矩阵==（30讲 第2讲 p53）`,
+              R`==对称矩阵 $A^2=O\Rightarrow A=O$==：$A^2=A^{\mathrm T}A$，它的第 $j$ 个主对角元是 $A$ 第 $j$ 列各元素的平方和，全为 0 就逼得每个元素都是 0。!!不对称时不成立!!：$\begin{pmatrix}0&1\\0&0\end{pmatrix}^2=O$`
             ],
             quiz: R`$\begin{pmatrix}1&2\\-2&0\end{pmatrix}$ 是反对称矩阵吗？`
           }
@@ -120,7 +121,9 @@ $$c_{ij}=a_{i1}b_{1j}+a_{i2}b_{2j}+\cdots+a_{ip}b_{pj}=\sum_{k=1}^{p}a_{ik}b_{kj
             notes: [
               R`$c_{ij}$ = ==$A$ 的第 $i$ 行和 $B$ 的第 $j$ 列对应相乘再相加==（30讲 第2讲 p51）`,
               R`==行向量乘列向量得一个数，列向量乘行向量得方阵==：$(1\ 2\ 3)\begin{pmatrix}3\\2\\1\end{pmatrix}=10$，而反过来乘是 $3$ 阶方阵（教材 例1.2 p5）`,
-              R`$AB$ 读作「$A$ 左乘 $B$」或「$B$ 右乘 $A$」；$AB=BA$ 时称 $A,B$ 可交换（p6）`
+              R`$AB$ 读作「$A$ 左乘 $B$」或「$B$ 右乘 $A$」；$AB=BA$ 时称 $A,B$ 可交换（p6）`,
+              R`==为什么这样定义乘法==：矩阵代表线性变换。先做 $\begin{pmatrix}u\\v\end{pmatrix}=B\begin{pmatrix}x\\y\end{pmatrix}$，再做 $\begin{pmatrix}p\\q\end{pmatrix}=A\begin{pmatrix}u\\v\end{pmatrix}$，合起来就是 $\begin{pmatrix}p\\q\end{pmatrix}=(AB)\begin{pmatrix}x\\y\end{pmatrix}$。==矩阵乘法 = 线性变换的复合==，$AB$ 是先做 $B$、再做 $A$；先后一换，结果一般就变，所以 $AB\neq BA$`,
+              R`$e_iAe_j^{\mathrm T}=a_{ij}$（$e_i$ 是第 $i$ 个分量为 1 的行向量）。所以==若对任意列向量 $x,y$ 都有 $x^{\mathrm T}Ay=0$，则 $A=O$==：取 $x=e_i^{\mathrm T}$，$y=e_j^{\mathrm T}$ 就得 $a_{ij}=0$`
             ],
             quiz: R`$A$ 是 $2\times3$，$B$ 是 $3\times4$，$AB$ 和 $BA$ 哪个有意义？是几行几列？`
           },
@@ -382,7 +385,8 @@ $$A=\frac{A+A^{\mathrm T}}{2}+\frac{A-A^{\mathrm T}}{2}.$$`,
       { id: "e7", wrong: R`$f(x)=x^2-2x+3$，$f(A)=A^2-2A+3$`, why: R`矩阵加一个数没有定义，常数项要乘单位矩阵`, right: R`$f(A)=A^2-2A+3E$`, test: R`$A=\begin{pmatrix}0&1\\0&0\end{pmatrix}$，$f(A)=A^2-2A+3E=$？`, ans: R`$\begin{pmatrix}3&-2\\0&3\end{pmatrix}$`, link: "题型 8" },
       { id: "e8", wrong: R`$A=\alpha\beta^{\mathrm T}$，所以 $A^n=(\beta^{\mathrm T}\alpha)^nA$`, why: R`$n$ 个 $\alpha\beta^{\mathrm T}$ 相乘，中间只有 $n-1$ 个 $\beta^{\mathrm T}\alpha$`, right: R`$A^n=(\beta^{\mathrm T}\alpha)^{n-1}A$，用 $n=1$ 检验：$A^1=A$`, test: R`$A=\begin{pmatrix}2&6&4\\-1&-3&-2\\2&6&4\end{pmatrix}$，$A^n=$？`, ans: R`$\operatorname{tr}(A)=2-3+4=3$，$A^n=3^{n-1}A$（李永乐 第2章 例2.2 p41）`, link: "题型 3" },
       { id: "e9", wrong: R`任何拆分 $A=B+C$ 都能用二项式展开 $(B+C)^n$`, why: R`二项式定理要求 $BC=CB$`, right: R`拆成 $\lambda E+B$ 这样一定可交换的形式`, test: R`$B=\begin{pmatrix}0&1\\0&0\end{pmatrix}$，$C=\begin{pmatrix}1&0\\0&2\end{pmatrix}$，$(B+C)^2$ 等于 $B^2+2BC+C^2$ 吗？`, ans: R`不等：$(B+C)^2=\begin{pmatrix}1&3\\0&4\end{pmatrix}$，$B^2+2BC+C^2=\begin{pmatrix}1&4\\0&4\end{pmatrix}$`, link: "题型 4" },
-      { id: "e12", wrong: R`$e_1=(1,0,0)$，$Ae_1^{\mathrm T}$ 是 $A$ 的第 1 行`, why: R`右乘一个列向量，得到的是各列的组合；$Ae_1^{\mathrm T}$ 取的是第 1 列`, right: R`左乘行向量 $e_iA$ 取第 $i$ 行，右乘列向量 $Ae_j^{\mathrm T}$ 取第 $j$ 列`, test: R`$e_1Ae_2^{\mathrm T}$ 等于 $A$ 的哪个元素？`, ans: R`$a_{12}$：先取第 1 行，再取其中第 2 个（教材 练习题1.1 第2题）`, link: "题型 1" },
+      { id: "e12", wrong: R`$e_1=(1,0,0)$，$Ae_1^{\mathrm T}$ 是 $A$ 的第 1 行`, why: R`右乘一个列向量，得到的是各列的组合；$Ae_1^{\mathrm T}$ 取的是第 1 列`, right: R`左乘行向量 $e_iA$ 取第 $i$ 行，右乘列向量 $Ae_j^{\mathrm T}$ 取第 $j$ 列`, test: R`$e_1Ae_2^{\mathrm T}$ 等于 $A$ 的哪个元素？`, ans: R`$a_{12}$：先取第 1 行，再取其中第 2 个（教材 练习题1.1 第2题）`, link: "题型 1" },,
+      { id: "e13", wrong: R`对一切 $\alpha$ 都有 $\alpha^{\mathrm T}A\alpha=\alpha^{\mathrm T}B\alpha$，所以 $A=B$`, why: R`$\alpha^{\mathrm T}A\alpha$ 里交叉项的系数是 $a_{ij}+a_{ji}$，只取决于 $A$ 的对称部分 $\frac12(A+A^{\mathrm T})$`, right: R`只能推出 $A+A^{\mathrm T}=B+B^{\mathrm T}$；$A,B$ 都是对称矩阵时才有 $A=B$`, test: R`$A=\begin{pmatrix}2&5\\5&4\end{pmatrix}$，$B=\begin{pmatrix}2&3\\7&4\end{pmatrix}$，$\alpha=\begin{pmatrix}x\\y\end{pmatrix}$。$\alpha^{\mathrm T}A\alpha$ 和 $\alpha^{\mathrm T}B\alpha$ 相等吗？`, ans: R`都等于 $2x^2+10xy+4y^2$，但 $A\neq B$（$5+5=3+7$）`, link: "知识点 对称矩阵和反对称矩阵" }
     ]
   });
 })();

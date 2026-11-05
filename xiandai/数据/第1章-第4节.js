@@ -20,7 +20,7 @@ p30 初等矩阵的第二个例子转换稿有误，按「E 的第 2 行乘 3 �
     title: "矩阵的初等变换",
     pages: "教材 p26–34",
     sources: ["教材 1.4 p26–34", "30讲 第2讲 五「初等变换与初等矩阵」p63–69（例2.12–2.16）、六「矩阵方程」p69–70（例2.17）、七「等价矩阵」p70–72（例2.18）", "9讲 第3讲 例3.6 p21、「初等矩阵」p30–31、「求解矩阵方程」p38–39", "李永乐 第2章「初等变换，初等矩阵」p54–56，例2.18–2.23", "1000题基础篇 第2章 第9–13题"],
-    updated: "2026-10-22",
+    updated: "2026-11-05",
 
     framework: {
       main: R`解方程组的三种同解变形，搬到矩阵上就是三种初等行变换；每做一次初等变换，等于乘一个初等矩阵（左乘行、右乘列）。初等矩阵都可逆，所以可逆矩阵就是初等矩阵的乘积，能只用行变换化成 $E$，由此得到 $(A\mid E)\to(E\mid A^{-1})$。`,
@@ -74,7 +74,8 @@ p30 初等矩阵的第二个例子转换稿有误，按「E 的第 2 行乘 3 �
             notes: [
               R`出现形如 $(0\ 0\ \cdots\ 0\mid d)$、$d\neq0$ 的行，对应 $0=d$，==方程组无解==（例1.20 p26–27）`,
               R`非零行的首元对应的未知量留在左边，==其余取作自由未知量==，令它们为任意常数，得到参数形式解（例1.21 p27–28）`,
-              R`齐次方程组的常数列始终为 0，==只对系数矩阵做行变换即可==（p29 注）`
+              R`齐次方程组的常数列始终为 0，==只对系数矩阵做行变换即可==（p29 注）`,
+              R`==几何意义==：三个未知数时，每个方程是空间里的一个平面，解集就是这些平面的公共部分。$\begin{cases}x+y+z=1\\2x+3y+z=2\end{cases}$ 是两个不平行的平面，交成一条直线；它有一个自由未知量，参数形式解 $x=1-2k,\ y=k,\ z=k$ 正是这条直线的参数方程`
             ],
             quiz: R`行阶梯形里出现一整行全为 0，方程组就无解吗？`
           },
@@ -343,6 +344,64 @@ p30 初等矩阵的第二个例子转换稿有误，按「E 的第 2 行乘 3 �
         practice: "教材 例1.23（p31）；30讲 例2.18（p71–72）；1000题基础篇 第2章 第11题（p49）"
       },
       {
+        id: "t10", name: "A + B = AB 型：凑出 (A − E)(B − E) = E",
+        signal: R`已知 ==$A+B=AB$==（或类似的乘积与和的关系），要证 ==$A-E$ 可逆==，或由 $B$ 求 $A$`,
+        example: { q: R`设 $n$ 阶矩阵 $A,B$ 满足 $A+B=AB$。(1) 证明 $A-E$ 可逆；(2) 若 $B=\begin{pmatrix}1&-3&0\\2&1&0\\0&0&2\end{pmatrix}$，求 $A$。`, src: "课堂例题、课后作业" },
+        idea: {
+          key: R`==两边减 $A$、减 $B$、加 $E$==：$AB-A-B+E=E$，左边正好分解成 $(A-E)(B-E)$`,
+          how: [R`++移项凑因式++：$AB-A-B+E=E\Rightarrow(A-E)(B-E)=E$`, R`++读出逆++：$(A-E)^{-1}=B-E$`, R`++求 $A$++：由 $A+B=AB$ 得 $A(B-E)=B$，$A=B(B-E)^{-1}$；求 $(B-E)^{-1}$ 用初等行变换或伴随矩阵`]
+        },
+        think: R`要证可逆就要凑「$(A-E)\times X=E$」。$(A-E)(B-E)$ 展开是 $AB-A-B+E$，和条件 $AB=A+B$ 只差一个 $E$`,
+        first: R`$AB-A-B+E=E$，即 $(A-E)(B-E)=E$`,
+        steps: [
+          R`++(1) 凑因式++：由 $A+B=AB$ 得 $AB-A-B+E=E$，即 $(A-E)(B-E)=E$，所以 ==$A-E$ 可逆，$(A-E)^{-1}=B-E$==`,
+          R`++顺带的结论++：$(B-E)(A-E)=E$ 也成立，展开得 $BA-A-B+E=E$，即 $BA=A+B=AB$，==$A,B$ 可交换==`,
+          R`++(2) 解出 $A$++：$A+B=AB\Rightarrow A(B-E)=B\Rightarrow A=B(B-E)^{-1}$`,
+          R`++求 $(B-E)^{-1}$++：$B-E=\begin{pmatrix}0&-3&0\\2&0&0\\0&0&1\end{pmatrix}$，左上角 2 阶块的逆是 $\frac16\begin{pmatrix}0&3\\-2&0\end{pmatrix}$，所以 $(B-E)^{-1}=\begin{pmatrix}0&\frac12&0\\-\frac13&0&0\\0&0&1\end{pmatrix}$`,
+          R`++相乘++：$A=B(B-E)^{-1}=\begin{pmatrix}1&\frac12&0\\-\frac13&1&0\\0&0&2\end{pmatrix}$，代回检验 $A+B=AB$ 成立`
+        ],
+        pitfall: R`!!由 $A(B-E)=B$ 写成 $A=(B-E)^{-1}B$!!：$B-E$ 在 $A$ 的右边，要==右乘== $(B-E)^{-1}$；!!凑因式时漏了 $+E$!!，$(A-E)(B-E)=AB-A-B+E$`,
+        practice: "把条件换成 AB = 2A + B，凑出 (A − E)(B − 2E) = 2E，求 (A − E)⁻¹"
+      },
+      {
+        id: "t11", name: "含逆、转置的矩阵方程：先化简再代数",
+        signal: R`方程里同时有 ==$C^{-1}$、$A^{\mathrm T}$== 等，直接代数会很繁`,
+        example: { q: R`设 $(2E-C^{-1}B)A^{\mathrm T}=C^{-1}$，其中 $B=\begin{pmatrix}1&2&-3&-2\\0&1&2&-3\\0&0&1&2\\0&0&0&1\end{pmatrix}$，$C=\begin{pmatrix}1&2&0&1\\0&1&2&0\\0&0&1&2\\0&0&0&1\end{pmatrix}$，求 $A$。`, src: "课堂例题" },
+        idea: {
+          key: R`==先用运算律把方程化到最简，最后才代数==：两边同一侧乘 $C$ 消掉 $C^{-1}$，转置留到最后处理`,
+          how: [R`++消逆++：两边左乘 $C$，$C(2E-C^{-1}B)=2C-B$`, R`++解出 $A^{\mathrm T}$++：$(2C-B)A^{\mathrm T}=E\Rightarrow A^{\mathrm T}=(2C-B)^{-1}$`, R`++再转置++：$A=\left[(2C-B)^{-1}\right]^{\mathrm T}$，代数计算`]
+        },
+        think: R`$C^{-1}$ 不好求，但它在方程两边都出现，左乘 $C$ 就能一起消掉；化简以后只要求一个上三角矩阵的逆`,
+        first: R`两边左乘 $C$：$(2C-B)A^{\mathrm T}=E$`,
+        steps: [
+          R`++化简++：左乘 $C$ 得 $C(2E-C^{-1}B)A^{\mathrm T}=CC^{-1}$，即 $(2C-B)A^{\mathrm T}=E$`,
+          R`++代数++：$2C-B=\begin{pmatrix}1&2&3&4\\0&1&2&3\\0&0&1&2\\0&0&0&1\end{pmatrix}$`,
+          R`++求逆++：用初等行变换，$(2C-B)^{-1}=\begin{pmatrix}1&-2&1&0\\0&1&-2&1\\0&0&1&-2\\0&0&0&1\end{pmatrix}$`,
+          R`++转置++：$A=\left[(2C-B)^{-1}\right]^{\mathrm T}=\begin{pmatrix}1&0&0&0\\-2&1&0&0\\1&-2&1&0\\0&1&-2&1\end{pmatrix}$`
+        ],
+        pitfall: R`!!左乘 $C$ 时写成 $(2E-C^{-1}B)C$!!，乘的一侧要和 $C^{-1}$ 所在的一侧一致；!!最后忘了转置!!`,
+        practice: "1.4 题型 5（解矩阵方程）的例题，先化简再算"
+      },
+      {
+        id: "t12", name: "实际问题：参数形式解加上取值限制",
+        signal: R`应用题列出的方程组==未知数比方程多==，又要求解是==非负整数==等`,
+        example: { q: R`今有鸡翁一，值钱五；鸡母一，值钱三；鸡雏三，值钱一。百钱买鸡百只，问鸡翁、母、雏各几何？`, src: "课堂例题（百鸡问题）" },
+        idea: {
+          key: R`==先按一般方法求参数形式解==，再用实际限制（整数、非负）确定参数的范围`,
+          how: [R`++列方程组++：未知数多于方程，必有自由未知量`, R`++化行最简形，写参数形式解++：参数取得巧，可以让解都是整数`, R`++加限制++：由各未知数的取值要求列不等式，解出参数的取值`]
+        },
+        think: R`两个方程三个未知数，有无穷多组解；但鸡的只数必须是非负整数，这就把无穷多组筛成有限几组`,
+        first: R`设鸡翁、母、雏各 $x,y,z$ 只：$x+y+z=100$，$5x+3y+\frac13z=100$`,
+        steps: [
+          R`++化行最简形++：$\begin{pmatrix}1&1&1&100\\5&3&\frac13&100\end{pmatrix}\to\begin{pmatrix}1&0&-\frac43&-100\\0&1&\frac73&200\end{pmatrix}$`,
+          R`++参数形式解++：$x=\frac43z-100$，$y=200-\frac73z$。$z$ 取 3 的倍数才能是整数，令 $z=3a$：==$x=4a-100,\ y=200-7a,\ z=3a$==`,
+          R`++加限制++：$x\geqslant0\Rightarrow a\geqslant25$；$y\geqslant0\Rightarrow a\leqslant\frac{200}7$，即 $a\leqslant28$`,
+          R`++结论++：三种鸡都要有，$a=26,27,28$，得 $(4,18,78)$、$(8,11,81)$、$(12,4,84)$ 三组；允许鸡翁为 0 时还有 $a=25$，$(0,25,75)$`
+        ],
+        pitfall: R`!!只写参数形式解就结束!!，没用上「只数是非负整数」；!!参数直接取 $z$!!，解里出现分数，不好判断整数`,
+        practice: "百钱买鸡百只，若改成鸡翁值钱四、鸡母值钱三、鸡雏三只值钱一，有几组解？"
+      },
+      {
         id: "t7", name: "研 · 初等矩阵的幂：P₁ᵐ A P₂ⁿ",
         signal: R`==初等矩阵的高次幂夹着一个矩阵==，如 $\begin{pmatrix}1&0\\-1&1\end{pmatrix}^3A\begin{pmatrix}0&1\\1&0\end{pmatrix}^{-5}$`,
         example: { q: R`$\begin{pmatrix}1&0\\-1&1\end{pmatrix}^{3}\begin{pmatrix}1&2\\-1&3\end{pmatrix}\begin{pmatrix}0&1\\1&0\end{pmatrix}^{-5}=$ ____。`, src: "9讲 第3讲 例3.6 p21" },
@@ -421,8 +480,8 @@ p30 初等矩阵的第二个例子转换稿有误，按「E 的第 2 行乘 3 �
       { id: "e10", wrong: R`$AX=B$，所以 $X=BA^{-1}$`, why: R`$X$ 在 $A$ 右边，要左乘 $A^{-1}$；矩阵乘法不能交换`, right: R`$AX=B\Rightarrow X=A^{-1}B$；$XA=B\Rightarrow X=BA^{-1}$`, test: R`$XA=B$，用行变换 $(A\mid B)$ 能求出 $X$ 吗？`, ans: R`不能，那得到的是 $A^{-1}B$。应对 $\begin{pmatrix}A\\B\end{pmatrix}$ 做列变换，或转置后用行变换`, link: "题型 5" },
       { id: "e11", wrong: R`$AX-2X=(A-2)X$`, why: R`矩阵减数没有定义`, right: R`$AX-2X=(A-2E)X$`, test: R`化简 $XA-X$。`, ans: R`$X(A-E)$，$X$ 提在左边`, link: "题型 5" },
       { id: "e13", wrong: R`等价的矩阵只用行变换就能互化`, why: R`等价允许行、列变换都用`, right: R`$PA=B$ 是行等价，比等价更强`, test: R`$A=\begin{pmatrix}1&0\\0&0\end{pmatrix}$，$B=\begin{pmatrix}0&1\\0&0\end{pmatrix}$ 等价吗？只用行变换能互化吗？`, ans: R`等价（交换两列即可），但只用行变换不行（1000题 第2章 第11题解析 p129）`, link: "题型 6" },
-      { id: "e14", wrong: R`$A$ 交换第 1、2 行得 $B$，所以 $A^{-1}$ 交换第 1、2 行得 $B^{-1}$`, why: R`$B^{-1}=(E_{12}A)^{-1}=A^{-1}E_{12}$，变成了右乘`, right: R`$A$ 换两行 $\Rightarrow$ $A^{-1}$ 换两列`, test: R`$A$ 的第 2 列乘 3 得 $B$，$B^{-1}$ 由 $A^{-1}$ 怎样得到？`, ans: R`$B=AE_2(3)$，$B^{-1}=E_2(\frac13)A^{-1}$：$A^{-1}$ 的第 2 行乘 $\frac13$`, link: "题型 8" },
-      { id: "e15", wrong: R`$\begin{pmatrix}O&A\\B&O\end{pmatrix}^{-1}=\begin{pmatrix}O&A^{-1}\\B^{-1}&O\end{pmatrix}$`, why: R`副对角分块求逆要交换位置`, right: R`$\begin{pmatrix}O&A\\B&O\end{pmatrix}^{-1}=\begin{pmatrix}O&B^{-1}\\A^{-1}&O\end{pmatrix}$，乘回去验证`, test: R`$\begin{pmatrix}0&2\\3&0\end{pmatrix}^{-1}=$？`, ans: R`$\begin{pmatrix}0&\frac13\\\frac12&0\end{pmatrix}$`, link: "题型 9" },
+      { id: "e14", wrong: R`$A$ 交换第 1、2 行得 $B$，所以 $A^{-1}$ 交换第 1、2 行得 $B^{-1}$`, why: R`$B^{-1}=(E_{12}A)^{-1}=A^{-1}E_{12}$，变成了右乘`, right: R`$A$ 换两行 $\Rightarrow$ $A^{-1}$ 换两列`, test: R`$A$ 的第 2 列乘 3 得 $B$，$B^{-1}$ 由 $A^{-1}$ 怎样得到？`, ans: R`$B=AE_2(3)$，$B^{-1}=E_2(\frac13)A^{-1}$：$A^{-1}$ 的第 2 行乘 $\frac13$`, link: "题型 11" },
+      { id: "e15", wrong: R`$\begin{pmatrix}O&A\\B&O\end{pmatrix}^{-1}=\begin{pmatrix}O&A^{-1}\\B^{-1}&O\end{pmatrix}$`, why: R`副对角分块求逆要交换位置`, right: R`$\begin{pmatrix}O&A\\B&O\end{pmatrix}^{-1}=\begin{pmatrix}O&B^{-1}\\A^{-1}&O\end{pmatrix}$，乘回去验证`, test: R`$\begin{pmatrix}0&2\\3&0\end{pmatrix}^{-1}=$？`, ans: R`$\begin{pmatrix}0&\frac13\\\frac12&0\end{pmatrix}$`, link: "题型 12" },
     ]
   });
 })();
