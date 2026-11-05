@@ -579,7 +579,9 @@ function today() { return ymd(new Date()); }
 function addDays(n) { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); }
 const SYM = { ok: "✓", mid: "△", bad: "✗" };
 const INTERVALS = [1, 3, 7, 21];
-const DAY_CAP = 30; // 「今日」一天最多做多少条，超出的顺延到第二天
+const DAY_CAP = 20; // 「今日」一天最多做多少条（三科合计 50：高数 20、线代 15、C 语言 15，JC-0035），超出的摊到后面几天
+const EXAM_LAST = "2027-01-08"; // 期末前最后一天：到期日不越过它（JC-0035）
+const FINAL_REVIEW = "2027-01-04"; // 毕业的条目在这天回来做考前总复习
 const DO_MIN = 5; // 做完模式默认计时（分钟）
 /* 间隔复习（2026-10-30 起和自评打通）：store.srs[键] = { box, due, last, lastWrong, t }；撤销后留 { del: 1 }
    - 第一次 ✓（读的时候）只算见过：排到明天闭卷复查
@@ -594,8 +596,11 @@ function srsGrade(k, ok) {
   if (!ok) n = { box: 0, due: t, last: t, lastWrong: t };
   else if (!s) n = { box: 0, due: addDays(1), last: t };
   else if (s.lastWrong === t) n = { box: 0, due: addDays(1), last: t, lastWrong: t };
-  else if (s.due <= t && s.last !== t) { const b = (s.box || 0) + 1; n = { box: b, due: addDays(INTERVALS[Math.min(b, INTERVALS.length - 1)]), last: t }; }
+  else if (s.due <= t && s.last !== t) { const b = (s.box || 0) + 1; n = { box: b, due: addDays(INTERVALS[Math.min(b, INTERVALS.length - 1)]), last: t };
+    /* 3、7、21 天各对一次（box 到 4）就毕业：移出日常队列，考前总复习再回来（JC-0035） */
+    if (b >= INTERVALS.length) { n.grad = 1; n.due = t < FINAL_REVIEW ? FINAL_REVIEW : addDays(INTERVALS[INTERVALS.length - 1]); } }
   else return false;
+  if (n.due > EXAM_LAST && t < EXAM_LAST) n.due = EXAM_LAST;
   n.t = Date.now(); store.srs[k] = n; return true;
 }
 /* 撤销自评时把复习安排一起退回去（本页打开期间有效） */
@@ -611,8 +616,32 @@ function migrateSrs() {
     store.srs[k] = l.r === "bad" ? { box: 0, due: today(), last: l.d, lastWrong: l.d, t: 1 } : { box: 0, due: today(), last: l.d, t: 1 };
     n++;
   }
+  n += spreadBacklog();
   if (n) { rawSave(); schedulePush(); }
   return n;
+}
+/* 积压摊开（JC-0035）：今天到期超过 DAY_CAP 的，按「错过的、☆ 的、到期早的」先留今天，其余摊到后面几天（每天最多 DAY_CAP，最多 7 天，不越过 EXAM_LAST）。一天只摊一次 */
+function spreadBacklog() {
+  const t = today(); store.ui = store.ui || {};
+  if (store.ui.spreadDay === t) return 0;
+  const due = Object.keys(store.srs).filter(k => { const s = srsOf(k); return s && s.due <= t; });
+  store.ui.spreadDay = t;
+  if (due.length <= DAY_CAP) return 0;
+  const pri = k => (srsOf(k).lastWrong ? 0 : 2) + (store.stars[k] ? 0 : 1);
+  due.sort((a, b) => pri(a) - pri(b) || (srsOf(a).due < srsOf(b).due ? -1 : srsOf(a).due > srsOf(b).due ? 1 : 0));
+  const rest = due.slice(DAY_CAP), per = Math.min(DAY_CAP, Math.max(1, Math.ceil(rest.length / 7)));
+  rest.forEach((k, i) => { let d = addDays(1 + Math.floor(i / per)); if (d > EXAM_LAST && t < EXAM_LAST) d = EXAM_LAST; store.srs[k] = Object.assign({}, store.srs[k], { due: d, t: Date.now() }); });
+  return rest.length;
+}
+/* 交错（JC-0035）：同一节的条目不连着出现超过 2 条 */
+function interleave(list) {
+  const out = [], left = list.slice(), sid = it => String(it.sec && it.sec.id);
+  while (left.length) {
+    const n = out.length, same = n >= 2 && sid(out[n - 1]) === sid(out[n - 2]) ? sid(out[n - 1]) : null;
+    let i = same ? left.findIndex(it => sid(it) !== same) : 0; if (i < 0) i = 0;
+    out.push(left.splice(i, 1)[0]);
+  }
+  return out;
 }
 function statusOf(key) {
   const h = (store.marks[key] || []).filter(x => x.r !== "mid");
@@ -1358,7 +1387,7 @@ function todayQueue() {
   const t = today();
   const its = allItems(true).filter(it => { const s = srsOf(it.key); return s && s.due <= t; });
   const pri = it => (srsOf(it.key).lastWrong ? 0 : 2) + (store.stars[it.key] ? 0 : 1);
-  return its.sort((a, b) => pri(a) - pri(b) || (srsOf(a.key).due < srsOf(b.key).due ? -1 : srsOf(a.key).due > srsOf(b.key).due ? 1 : 0) || secRank(a.sec) - secRank(b.sec));
+  return interleave(its.sort((a, b) => pri(a) - pri(b) || (srsOf(a.key).due < srsOf(b.key).due ? -1 : srsOf(a.key).due > srsOf(b.key).due ? 1 : 0) || secRank(a.sec) - secRank(b.sec)));
 }
 /* 最近在学：最近一次自评所在的小节 */
 function recentSec() {
@@ -1391,7 +1420,7 @@ function renderToday() {
       <a class="ch-card panel" href="#wrong" id="tdWr"><div class="eyebrow"><span>周末重做</span><span>${wk} 题</span></div><h3>错题区</h3><div class="note">只看本周还没重做的错题。</div></a>
       <a class="ch-card panel" href="#review"><div class="eyebrow"><span>按需要</span><span></span></div><h3>复习中心</h3><div class="note">薄弱清单、速认、限时抽题、自选范围的间隔复习。</div></a>
     </div>
-    <p class="note" style="max-width:46em;margin-top:16px">✓ 的标准：闭卷、写出来、对了。第一次 ✓ 明天再查一次；到期再答对，间隔往后挪到 3、7、21 天；✗ 当天再来。</p>`;
+    <p class="note" style="max-width:46em;margin-top:16px">✓ 的标准：闭卷、写出来、对了。第一次 ✓ 明天再查一次；到期再答对，间隔往后挪到 3、7、21 天，21 天那次也对了就毕业，1/4 考前总复习再出现；✗ 当天再来。</p>`;
   const st = $("#tdStart"); if (st) st.addEventListener("click", () => runReview(q.slice(0, DAY_CAP), "today"));
   const dd = $("#tdDo"); if (dd) dd.addEventListener("click", () => { curTab = "types"; store.ui.tab = "types"; store.ui.doMode = true; save(); });
   const wr = $("#tdWr"); if (wr) wr.addEventListener("click", () => { wrOpt.st = "week"; });
