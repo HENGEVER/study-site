@@ -17,7 +17,7 @@ for (const f of fs.readdirSync(dir).filter(x => /^第.*节\.js$/.test(x))) {
     np++; nn += nl; seen.add(k);
     if (!e || !e.c) { console.log("缺线索", k, p.name); bad++; continue; }
     if ((e.n || []).length !== nl) { console.log("补充条数不符", k, "补充", nl, "线索", (e.n || []).length); bad++; }
-    (e.n || []).forEach((t, i) => { if (!t) { console.log("空线索", k, "补充", i); bad++; } });
+    (e.n || []).forEach((t, i) => { if (typeof t !== "string") { console.log("空线索", k, "补充", i); bad++; } }); // 空字符串 "" = 这条补充不出线索（2026-11-05）
   }
 }
 for (const k of Object.keys(O)) if (!seen.has(k)) { console.log("多余线索（没有这条知识点）", k); bad++; }
