@@ -686,7 +686,6 @@ function migrateSrs() {
     store.srs[k] = l.r === "bad" ? { box: 0, due: today(), last: l.d, lastWrong: l.d, t: 1 } : { box: 0, due: today(), last: l.d, t: 1 };
     n++;
   }
-  n += spreadBacklog();
   if (n) { rawSave(); schedulePush(); }
   return n;
 }
@@ -860,7 +859,7 @@ function reviewMd() {
     sec("最近一次自评是 ✗ 的", lines(lastBad)),
     sec("☆ 不熟", lines(stars)),
     sec("△ 重点记录", lines(keys)),
-    sec(`今天及之前到期的间隔复习（共 ${due.length} 条，「今日」一天做 ${DAY_CAP} 条；下面列前 40 条）`, due.slice(0, 40).map(k => `- ${itemLabel(k)}（到期 ${store.srs[k].due}）`)),
+    sec(`今天及之前到期的间隔复习（共 ${due.length} 条，「今日」已改为只过 ✗ 的，这里仅供参考；下面列前 40 条）`, due.slice(0, 40).map(k => `- ${itemLabel(k)}（到期 ${store.srs[k].due}）`)),
     sec("我的总结", notes.map(k => `- ${itemLabel(k)}：${store.notes[k].replace(/\n/g, " ")}`)),
     ""
   ].join("\n");
@@ -1002,8 +1001,8 @@ function allItems(withMx) {
   return out;
 }
 function isDue(key) { const s = srsOf(key); return !s || s.due <= today(); }
-function dueSeenCount() { const t = today(); return allItems(true).filter(it => { const s = srsOf(it.key); return s && s.due <= t; }).length; }
-function updateDot() { const n = dueSeenCount(); const dot = $("#dueDot"); if (!dot) return; dot.hidden = !n; dot.textContent = n > DAY_CAP ? DAY_CAP + "+" : n; }
+function dueSeenCount() { return todayQueue().length; }
+function updateDot() { const n = dueSeenCount(); const dot = $("#dueDot"); if (!dot) return; dot.hidden = !n; dot.textContent = n; }
 
 /* ===== 8. 首页 ===== */
 function renderHome() {
@@ -1030,8 +1029,8 @@ function renderHome() {
         <li>其余时间打开本节「题型卡」，开「做完模式」：读程序题先在纸上写出输出，填空题写出每一空，编程题手写完整代码，再点「对照答案」。</li>
         <li>全对才点 ✓；看了答案、写错、卡住都点 ✗。看懂了不算 ✓，不熟就点 ☆。</li>
         <li>知识点栏开「线索自测」，先回忆再点开对照；易错点栏先做陷阱小题，再看为什么错。</li>
-        <li>自评以后不用自己记：第一次 ✓ 明天再查一次，到期再答对就往后挪到 3、7、21 天；✗ 当天再来。</li>
-        <li>每天 23:00 点右上角「今日」，把到期的做完，一天最多 30 条，约 10–15 分钟。</li>
+        <li>自评 ✗ 的条目会进「今日」，答对一次就离开；✓ 的不再每天排复习。</li>
+        <li>有空就点右上角「今日」，过一遍不会的。</li>
         <li>每章讲完：做章末的本章真题，限时。</li>
       </ol>
     </div>`;
@@ -1496,9 +1495,10 @@ function finishReview() {
 /* ===== 11a. 今日：每天 23:00 回顾时只点这里 ===== */
 function todayQueue() {
   const t = today();
-  const its = allItems(true).filter(it => { const s = srsOf(it.key); return s && s.due <= t; });
-  const pri = it => (srsOf(it.key).lastWrong ? 0 : 2) + (store.stars[it.key] ? 0 : 1);
-  return interleave(its.sort((a, b) => pri(a) - pri(b) || (srsOf(a.key).due < srsOf(b.key).due ? -1 : srsOf(a.key).due > srsOf(b.key).due ? 1 : 0) || secRank(a.sec) - secRank(b.sec)));
+  /* 2026-11-05 恆定（JC-0038）：「今日」只过不会的——最近一次自评是 ✗ 的条目；答对一次就离开。不再按间隔排每天复习 */
+  const its = allItems(true).filter(it => { const l = lastMark(it.key); return l && l.r === "bad"; });
+  const lastT = it => { const l = lastMark(it.key); return l.t || Date.parse(l.d) || 0; };
+  return interleave(its.sort((a, b) => secRank(a.sec) - secRank(b.sec) || lastT(b) - lastT(a)));
 }
 /* 最近在学：最近一次自评所在的小节 */
 function recentSec() {
@@ -1515,24 +1515,24 @@ function todayBanner() {
 }
 function renderToday() {
   curSec = null;
-  const q = todayQueue(), n = q.length, m = Math.min(n, DAY_CAP), t = today();
+  const q = todayQueue(), n = q.length, m = n, t = today();
   const wk = WRONG.filter(w => !weekMark(w.id)).length;
   const rs = recentSec();
   const sched = {}; Object.keys(store.srs).forEach(k => { const s = srsOf(k); if (s && s.due > t) sched[s.due] = (sched[s.due] || 0) + 1; });
   const next = Object.keys(sched).sort().slice(0, 5).map(d => `${d.slice(5)} ${sched[d]} 条`).join("　");
-  $("#main").innerHTML = `<div class="eyebrow">每天 23:00 回顾时先做这里</div><h1>今日</h1>
-    <div class="stats" style="margin-bottom:16px"><span><b>${n}</b>到期</span><span><b>${m}</b>今天做</span><span><b>${wk}</b>本周没重做的错题</span></div>
+  $("#main").innerHTML = `<div class="eyebrow">只过不会的：最近一次自评是 ✗ 的</div><h1>今日</h1>
+    <div class="stats" style="margin-bottom:16px"><span><b>${n}</b>不会的</span><span><b>${wk}</b>本周没重做的错题</span></div>
     <div class="panel today-main">
-      ${n ? `<p>先闭卷说出来或写下来，再点「显示答案」。答错的本轮会再出现，直到答对一次。${n > DAY_CAP ? `超出的 ${n - DAY_CAP} 条顺延到明天。` : ""}</p><button class="btn primary" id="tdStart" type="button">开始今天的复习（${m} 条）</button>` : `<p>今天没有到期的条目。新学的内容自评以后，会自动排进来。</p>`}
-      ${next ? `<p class="note" style="margin:10px 0 0">之后几天：${next}</p>` : ""}
+      ${n ? `<p>先闭卷说出来或写下来，再点「显示答案」。答错的本轮会再出现，直到答对一次。答对一次就从这里消失。</p><button class="btn primary" id="tdStart" type="button">开始今天的复习（${m} 条）</button>` : `<p>今天没有到期的条目。新学的内容自评以后，会自动排进来。</p>`}
+      
     </div>
     <div class="home-grid" style="margin-top:16px">
       ${rs ? `<a class="ch-card panel" href="#${rs.id}" id="tdDo"><div class="eyebrow"><span>最近在学</span><span>${esc(rs.id)}</span></div><h3>${esc(rs.title)}</h3><div class="note">打开本节题型卡的做完模式：在 GoodNotes 里写完整过程，再对照答案。</div></a>` : ""}
       <a class="ch-card panel" href="#wrong" id="tdWr"><div class="eyebrow"><span>周末重做</span><span>${wk} 题</span></div><h3>错题区</h3><div class="note">只看本周还没重做的错题。</div></a>
       <a class="ch-card panel" href="#review"><div class="eyebrow"><span>按需要</span><span></span></div><h3>复习中心</h3><div class="note">薄弱清单、速认、限时抽题、自选范围的间隔复习。</div></a>
     </div>
-    <p class="note" style="max-width:46em;margin-top:16px">✓ 的标准：闭卷、写出来、对了。第一次 ✓ 明天再查一次；到期再答对，间隔往后挪到 3、7、21 天，21 天那次也对了就毕业，1/4 考前总复习再出现；✗ 当天再来。</p>`;
-  const st = $("#tdStart"); if (st) st.addEventListener("click", () => runReview(q.slice(0, DAY_CAP), "today"));
+    <p class="note" style="max-width:46em;margin-top:16px">✓ 的标准：闭卷、写出来、对了。这里只放最近一次是 ✗ 的条目，不再每天排间隔复习；想复习做对过的，用「复习中心」。</p>`;
+  const st = $("#tdStart"); if (st) st.addEventListener("click", () => runReview(q, "today"));
   const dd = $("#tdDo"); if (dd) dd.addEventListener("click", () => { curTab = "types"; store.ui.tab = "types"; store.ui.doMode = true; save(); });
   const wr = $("#tdWr"); if (wr) wr.addEventListener("click", () => { wrOpt.st = "week"; });
 }
@@ -1565,9 +1565,9 @@ function renderHub() {
   const w = weakItems().length, due = dueSeenCount();
   const card = (href, tag, title, desc, extra, id) => `<a class="ch-card panel" href="${href}"${id ? ` id="${id}"` : ""}><div class="eyebrow"><span>${tag}</span><span>${extra || ""}</span></div><h3>${title}</h3><div class="note">${desc}</div></a>`;
   $("#main").innerHTML = `<div class="eyebrow">综合复习</div><h1>复习</h1>
-    <p class="intro">每天先点「今日」，把到期的条目做完。其余按需要用：薄弱清单看自己标过的，速认练「认出题型、说出第一步」，题型卡的做完模式练「算对」。</p>
+    <p class="intro">「今日」只放不会的（最近一次 ✗）。其余按需要用：薄弱清单看自己标过的，速认练「认出题型、说出第一步」，题型卡的做完模式练「算对」。</p>
     <div class="home-grid">
-      ${card("#today", "每天 23:00", "今日", "到期的条目一键开始，一天最多 30 条，超出的顺延。", Math.min(due, DAY_CAP) + " 条")}
+      ${card("#today", "随时", "今日", "只过不会的：最近一次自评是 ✗ 的条目，答对就离开。", due + " 条")}
       ${card("#weak", "随时看", "薄弱清单", "汇总标了 ☆、△ 重点、自评 ✗、间隔复习答错的条目，一条一行，点开才看详情。", w + " 条")}
       ${card("#quick", "综合复习", "速认模式", "每张题型只显示「看到」和例题。先在心里说出方法和第一步，再点核对。", "")}
       ${card("#sample", "周复盘", "限时抽题", "从题型、易错点、混合题里随机抽，每题限时，时间到自动翻出答案。", "")}
@@ -1577,7 +1577,7 @@ function renderHub() {
     </div>
     <div class="howto panel"><h3>怎么安排</h3>
       <table class="tbl"><tr><th>时间</th><th>做什么</th><th>用时</th></tr>
-      <tr><td>每天 23:00 回顾</td><td>点「今日」，做完到期的条目（一天最多 30 条）</td><td>10–15 分钟</td></tr>
+      <tr><td>有空时</td><td>点「今日」，过一遍最近一次是 ✗ 的条目</td><td>看条数</td></tr>
       <tr><td>周日周复盘</td><td>薄弱清单过一遍，限时抽题 10 张</td><td>30 分钟</td></tr>
       <tr><td>每章学完</td><td>章末混合自测</td><td>60 分钟</td></tr>
       <tr><td>考前两周</td><td>每章：闭卷思维导图 → 速认模式 → 薄弱清单</td><td>每章约 1 小时</td></tr></table>
