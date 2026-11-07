@@ -284,8 +284,6 @@ span.th { color: #c01f1f; font-weight: 600; text-decoration: underline 2px #e066
 .th-panel li { margin: 3px 0; line-height: 1.65; }
 .th-panel li[data-go] { cursor: pointer; }
 .th-panel li[data-go]:hover .th-t { text-decoration: underline; }
-.th-panel .th-pg { margin-left: 6px; font: 11.5px var(--f-mono); color: var(--muted); white-space: nowrap; }
-.badge-th { display: inline-block; font-size: 11.5px; padding: 0 6px; border-radius: 10px; background: #c01f1f; color: #fff; font-weight: 700; white-space: nowrap; width: max-content; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) span.th { color: #ff8f8f; text-decoration-color: #ff8f8f; } :root:not([data-theme="light"]) .th-panel { background: #3a1c1c; border-left-color: #ff8f8f; } :root:not([data-theme="light"]) .th-panel summary { color: #ffb0b0; } }
 :root[data-theme="dark"] span.th { color: #ff8f8f; text-decoration-color: #ff8f8f; } :root[data-theme="dark"] .th-panel { background: #3a1c1c; border-left-color: #ff8f8f; } :root[data-theme="dark"] .th-panel summary { color: #ffb0b0; }
 .out-box { margin: 0; }
@@ -504,6 +502,112 @@ article.wr.panel { padding: 12px 16px; }
 .badge-t.lv-f { background: var(--accent-soft); color: var(--accent); }
 .badge-t.lv-u { background: var(--line); color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ===== 改版（2026-11-07）：去掉方格底、统一卡片和排版、节头收拢、首页重排 ===== */
+:root { --r: 10px; --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .04); --paper: #f4f6f8; --code-bg: #f6f8fb; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --shadow: none; --code-bg: #10161c; } }
+:root[data-theme="dark"] { --shadow: none; --code-bg: #10161c; }
+body { background-image: none; font-size: 15.5px; line-height: 1.8; -webkit-font-smoothing: antialiased; }
+.top { background: color-mix(in srgb, var(--sheet) 88%, transparent); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); }
+.btn { border-radius: 8px; }
+.panel { border-radius: var(--r); box-shadow: var(--shadow); }
+main { max-width: 920px; }
+.shell { gap: 40px; padding-top: 28px; }
+h1 { font-size: clamp(26px, 4vw, 32px); margin: 4px 0 10px; letter-spacing: .01em; }
+.h-no { font: 600 .78em var(--f-mono); color: var(--accent); margin-right: .55em; letter-spacing: 0; }
+.code { background: var(--code-bg); border-color: var(--line); border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px 14px; font-size: 13.5px; line-height: 1.6; }
+.ic { border-radius: 5px; }
+
+/* 节头 */
+.sec-hero { padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
+.sec-hero .meta { align-items: center; gap: 6px 12px; }
+.sec-hero .meta .pg { padding: 1px 9px; border-radius: 999px; background: var(--accent-soft); font-size: 12.5px; }
+.sec-hero .meta .stat { font: 12.5px var(--f-mono); }
+.srcs { position: relative; font-size: 12.5px; }
+.srcs summary { list-style: none; cursor: pointer; padding: 1px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.srcs summary::-webkit-details-marker { display: none; }
+.srcs summary::after { content: " ▾"; font-size: 10px; }
+.srcs[open] summary { border-color: var(--accent); color: var(--accent); }
+.srcs ul { margin: 8px 0 0; padding: 8px 12px 8px 26px; background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; color: var(--muted); line-height: 1.7; }
+.exam-line { margin-top: 12px; padding: 10px 14px; border-radius: 8px; border-left-width: 3px; font-size: 13.5px; line-height: 1.75; }
+
+/* 老师标红：保留内容，配色收淡 */
+.th-panel { margin: 0 0 18px; padding: 10px 16px 12px; background: var(--sheet); border: 1px solid var(--line); border-left: 3px solid #c84a4a; border-radius: var(--r); box-shadow: var(--shadow); }
+.th-panel summary { color: #b33a3a; }
+.th-panel ol { margin-top: 8px; }
+span.th { color: #b8322f; font-weight: 600; text-decoration: underline 1.5px rgba(200, 74, 74, .55); text-underline-offset: 4px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .th-panel { background: var(--sheet); border-left-color: #ff8f8f; } }
+:root[data-theme="dark"] .th-panel { background: var(--sheet); border-left-color: #ff8f8f; }
+
+/* 关系图、标签页 */
+.frame { margin: 0 0 22px; padding: 18px 22px 20px; }
+.tabs { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 54px); z-index: 4; background: var(--paper); gap: 4px; padding-top: 6px; margin-bottom: 18px; }
+.tab { border-radius: 8px 8px 0 0; padding: 9px 18px; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { border-bottom-width: 2.5px; }
+.chip { padding: 3px 12px; }
+
+/* 知识点、题型卡、易错点 */
+.group > h3 { font-size: 17px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
+.pt { padding: 16px 0; }
+.pt-name { font-size: 16px; }
+.tc-head { padding: 16px 20px 12px; background: linear-gradient(var(--sheet), var(--sheet)); }
+.tc-body { padding: 14px 20px 6px; }
+.tc-foot { padding: 12px 20px 16px; border-top: 1px solid var(--line); margin-top: 8px; }
+.cards { gap: 18px; }
+.pf { gap: 14px; }
+.pf-item { padding: 14px 18px; }
+
+/* 目录 */
+.toc-ch { border-bottom: 0; padding-block: 2px; }
+.toc-ch summary { padding: 6px 8px; border-radius: 8px; }
+.toc-ch summary:hover { background: var(--accent-soft); }
+.toc-list a, .toc-list span { border-radius: 6px; padding: 4px 8px; }
+.toc-list a.on { box-shadow: inset 3px 0 0 var(--accent); }
+.toc-ch summary .no { width: 3.8em; font-size: 11.5px; }
+.toc-ch summary .tt { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+main [id] { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 116px); }
+
+/* 首页 */
+.home-hero { padding: 8px 0 4px; max-width: 44em; }
+.home-hero .lead { color: var(--muted); margin: 0; }
+.home-quick { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 22px 0 6px; }
+.home-quick .today-bar { margin: 0; }
+.today-bar { border-radius: var(--r); }
+.today-bar.cont { border-color: var(--line); }
+.today-bar.cont b { color: var(--ok); }
+.today-bar.cont span:not(.go) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.home-h { font-size: 17px; margin: 26px 0 0; color: var(--muted); }
+.home-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); margin-top: 12px; }
+.ch-card { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 14px 16px; transition: border-color .15s, transform .15s; }
+a.ch-card:hover { transform: translateY(-1px); }
+.ch-card h3 { font-size: 15.5px; }
+.ch-card .note { margin: 2px 0 6px; }
+.ch-no { font: 600 22px/1 var(--f-mono); color: var(--accent); opacity: .85; width: 1.6em; }
+.ch-card.off { opacity: .6; box-shadow: none; }
+.ch-card.off .ch-no { color: var(--muted); }
+.howto { margin-top: 24px; }
+.howto summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.howto summary::-webkit-details-marker { display: none; }
+.howto summary::after { content: "展开"; margin-left: auto; font-size: 12.5px; color: var(--accent); }
+.howto[open] summary::after { content: "收起"; }
+
+@media (max-width: 900px) {
+  main { max-width: none; }
+  .tabs { top: calc(env(safe-area-inset-top, 0px) + 54px); }
+}
+@media (max-width: 560px) {
+  body { font-size: 15px; }
+  .shell { padding-top: 18px; }
+  h1 { font-size: 24px; }
+  .sec-hero { padding-bottom: 14px; margin-bottom: 14px; }
+  .frame { padding: 14px; }
+  .tab { padding: 8px 12px; }
+  .th-panel { padding: 8px 12px 10px; }
+  .tc-head, .tc-body, .tc-foot { padding-left: 14px; padding-right: 14px; }
+  .home-quick { grid-template-columns: minmax(0, 1fr); }
+  .home-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .ch-card { padding: 12px 14px; }
+}
 </style>
 
 <header class="top">
@@ -983,7 +1087,7 @@ function renderToc(cur) {
       : `<li><span title="还没生成"><span class="sn">${s[0]}</span>${esc(s[1])}</span></li>`).join("");
     const endId = "c" + c.n + "-end";
     const end = `<li class="end"><a class="${cur === endId ? "on" : ""}" href="#${endId}"><span class="sn">拓</span>章末 · 期末与等考提升</a>${cur === endId && KB.chapterEnds[c.n] ? outlineHtml(KB.chapterEnds[c.n]) : ""}</li>`;
-    return `<details class="toc-ch"${open ? " open" : ""}><summary><span class="no">第${CN[c.n]}章</span>${esc(c.title)}<span class="cnt">${have}/${c.sections.length}</span></summary><ul class="toc-list">${items}${end}</ul></details>`;
+    return `<details class="toc-ch"${open ? " open" : ""}><summary><span class="no">第${CN[c.n]}章</span><span class="tt">${esc(c.title)}</span><span class="cnt">${have}/${c.sections.length}</span></summary><ul class="toc-list">${items}${end}</ul></details>`;
   }).join("");
 }
 
@@ -1011,19 +1115,24 @@ function renderHome() {
   const cards = CATALOG.map(c => {
     const h = c.sections.filter(s => KB.sections[s[0]]).length;
     const first = c.sections.find(s => KB.sections[s[0]]);
-    const inner = `<div class="eyebrow"><span>第${CN[c.n]}章</span><span>教材 p${c.page}</span></div><h3>${esc(c.title)}</h3><div class="bar"><i style="width:${(h / c.sections.length * 100).toFixed(0)}%"></i></div><div class="note">已生成 ${h} / ${c.sections.length} 节</div>`;
-    return first ? `<a class="ch-card panel" href="#${first[0]}">${inner}</a>` : `<div class="ch-card panel">${inner}</div>`;
+    const inner = `<div class="ch-no">${String(c.n).padStart(2, "0")}</div><div class="ch-txt"><h3>${esc(c.title)}</h3><div class="note">${h ? `${h} / ${c.sections.length} 节` : "未开始"} · 教材 p${c.page}</div><div class="bar"><i style="width:${(h / c.sections.length * 100).toFixed(0)}%"></i></div></div>`;
+    return first ? `<a class="ch-card panel" href="#${first[0]}">${inner}</a>` : `<div class="ch-card panel off">${inner}</div>`;
   }).join("");
+  const rs = recentSec();
   $("#main").innerHTML = `
-    <div class="intro">
-      <div class="eyebrow">《新编C语言程序设计》第2版 · 已生成 ${have} / ${total} 节</div>
-      <h1>C语言知识网页</h1>
-      <p>一章分成各小节，最后一页是章末期末与等考提升。每节先是<strong>知识框架</strong>，一张图讲清知识点之间怎么连起来，然后分三栏：<strong>知识点</strong>、<strong>题型卡</strong>（读程序、填空、辨析、纸上编程四种，按期末考法分）、<strong>易错点</strong>。知识点、题型、易错点旁都有 <strong>☆</strong>（标为不熟）和 <strong>✓ △ ✗</strong> 自评。右上角的<strong>复习</strong>里有薄弱清单、速认模式、限时抽题和间隔复习；<strong>搜索</strong>能查全站。</p>
+    <section class="home-hero">
+      <div class="eyebrow">《新编C语言程序设计》第2版 · 已生成 ${have} / ${total} 节 · 期末 2027-01-11 起</div>
+      <h1>C 语言知识网页</h1>
+      <p class="lead">每节四块：<strong>知识框架</strong>、<strong>知识点</strong>、<strong>题型卡</strong>（读程序、填空、辨析、纸上编程）、<strong>易错点</strong>。期末只考笔试，所以先在纸上写，再对照答案。</p>
+    </section>
+    <div class="home-quick">
+      ${todayBanner()}
+      ${rs ? `<a class="today-bar panel cont" href="#${rs.id}"><b>接着学</b><span>${rs.id} ${esc(rs.title)}</span><span class="go">打开 →</span></a>` : ""}
     </div>
-    ${todayBanner()}
+    <h2 class="home-h">章节</h2>
     <div class="home-grid">${cards}</div>
-    <div class="howto panel">
-      <h3>一节怎么学（按这个顺序）</h3>
+    <details class="howto panel">
+      <summary><h3>一节怎么学</h3></summary>
       <ol>
         <li>课上认真听三样：老师讲的例题、强调的地方、你第一次见的内容。老师补充的题拍照发给科目项目，进错题区（标「师」）。</li>
         <li>其余时间打开本节「题型卡」，开「做完模式」：读程序题先在纸上写出输出，填空题写出每一空，编程题手写完整代码，再点「对照答案」。</li>
@@ -1033,7 +1142,7 @@ function renderHome() {
         <li>有空就点右上角「今日」，过一遍不会的。</li>
         <li>每章讲完：做章末的本章真题，限时。</li>
       </ol>
-    </div>`;
+    </details>`;
 }
 
 /* ===== 9. 章末页 ===== */
@@ -1060,11 +1169,12 @@ function renderSection(d, isEnd) {
   const chap = CATALOG.find(c => c.n === d.chapter) || { title: "" };
   const npts = (d.points || []).reduce((a, g) => a + g.items.length, 0);
   $("#main").innerHTML = `
-    <div class="eyebrow">第${CN[d.chapter]}章 ${esc(chap.title)} · ${isEnd ? "章末" : "第 " + d.id.split(".")[1] + " 节"}</div>
-    <h1>${isEnd ? "期末与等考提升" : d.id + "　" + esc(d.title)}</h1>
-    <div class="meta"><span class="pg">${esc(d.pages || "")}</span><span>更新 ${esc(d.updated || "")}</span></div>
-    <div class="meta" style="margin-top:4px">${(d.sources || []).map(s => `<span>${esc(s)}</span>`).join("")}</div>
-    ${d.exam ? `<div class="exam-line"><b>真题考法</b>${md(d.exam)}</div>` : ""}
+    <header class="sec-hero">
+      <div class="eyebrow">第${CN[d.chapter]}章 ${esc(chap.title)} · ${isEnd ? "章末" : "第 " + d.id.split(".")[1] + " 节"}</div>
+      <h1>${isEnd ? "期末与等考提升" : `<span class="h-no">${d.id}</span>${esc(d.title)}`}</h1>
+      <div class="meta">${d.pages ? `<span class="pg">${esc(d.pages)}</span>` : ""}<span class="stat">知识点 ${npts} · 题型 ${(d.types || []).length} · 易错 ${(d.pitfalls || []).length}</span>${(d.sources || []).length ? `<details class="srcs"><summary>出处</summary><ul>${d.sources.map(s => `<li>${esc(s)}</li>`).join("")}</ul></details>` : ""}</div>
+      ${d.exam ? `<div class="exam-line"><b>真题考法</b>${md(d.exam)}</div>` : ""}
+    </header>
     ${d.teacher ? thHtml(d) : ""}
     ${d.exampleMap ? exmapHtml(d) : ""}
     ${d.mindmap ? mindHtml(d) : ""}
@@ -1084,15 +1194,15 @@ function renderSection(d, isEnd) {
   showTab(d, true);
   bindGo(d, $("#main"));
 }
-/* 老师标红：teacher: { ppt: "PPT 第 5–29 页", items: [{ t: "原话或要点", p: "PPT p15", go: "p3" }] }；点一条跳到对应知识点或题型 */
+/* 老师标红：teacher: { items: [{ t: "原话或要点", go: "p3" }] }；点一条跳到对应知识点或题型。不写 PPT 页码（2026-11-07，恆定） */
 function thHtml(d) {
   const T = d.teacher, items = T.items || [];
   if (!items.length) return "";
   const open = uiFlag("thOpen", true);
-  return `<details class="th-panel" data-thp${open ? " open" : ""}><summary>老师标红<span class="note">${esc(T.ppt || "")} · ${items.length} 条，点一条跳到对应内容</span></summary>
-    <ol>${items.map(x => `<li${x.go ? ` data-go="${qa(x.go)}" role="link" tabindex="0"` : ""}><span class="th-t">${md(x.t)}</span><span class="th-pg">${esc(x.p || "")}</span></li>`).join("")}</ol></details>`;
+  return `<details class="th-panel" data-thp${open ? " open" : ""}><summary>老师标红<span class="note">${items.length} 条，点一条跳到对应内容</span></summary>
+    <ol>${items.map(x => `<li${x.go ? ` data-go="${qa(x.go)}" role="link" tabindex="0"` : ""}><span class="th-t">${md(x.t)}</span></li>`).join("")}</ol></details>`;
 }
-const thBadge = x => x && x.th ? `<span class="badge-th" title="老师 PPT 上标红讲过">师 ${esc(x.th)}</span>` : "";
+const thBadge = () => ""; /* 「师 PPT pN」标签已去掉（2026-11-07）；th 字段只用于题型卡「老师讲过」筛选 */
 /* 小节页：章末里和本节相关的拓展题型 */
 function secLinksHtml(d, isEnd) {
   const endD = KB.chapterEnds[d.chapter];

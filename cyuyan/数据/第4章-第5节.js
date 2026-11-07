@@ -17,15 +17,14 @@
     chapter: 4,
     title: "字符数据输入输出",
     pages: "教材 p70–72",
-    sources: ["老师 PPT 第04章 p17–25（PPT 4.4 节）", "教材 4.5 p70–72（例4-2～4-4）", "辅导 习题解答 第4章 选择题1 p94", "辅导 实验4 改错题(3) p48"],
+    sources: ["教材 4.5 p70–72（例4-2～4-4）", "辅导 习题解答 第4章 选择题1 p94", "辅导 实验4 改错题(3) p48"],
     updated: "2026-11-03",
     exam: "读程序 1 次：用字符运算把大写转成小写（2016，‹ch=ch+32›）。",
     teacher: {
-      ppt: "PPT 第 17–25 页（PPT 的 4.4 节）",
       items: [
-        { t: R`^^putchar 函数是字符输出函数^^，输出^^单个^^字符：^^putchar(字符变量或字符常量或整型值);^^`, p: "PPT p18", go: "p1" },
-        { t: R`^^getchar 函数的功能是从键盘上输入^^一个^^字符^^`, p: "PPT p22", go: "p2" },
-        { t: R`注意：^^getchar 函数只能接受单个字符^^，输入的数字也按字符处理`, p: "PPT p24", go: "p2" }
+        { t: R`^^putchar 函数是字符输出函数^^，输出^^单个^^字符：^^putchar(字符变量或字符常量或整型值);^^`, go: "p1" },
+        { t: R`^^getchar 函数的功能是从键盘上输入^^一个^^字符^^`, go: "p2" },
+        { t: R`注意：^^getchar 函数只能接受单个字符^^，输入的数字也按字符处理`, go: "p2" }
       ]
     },
 
@@ -55,21 +54,21 @@
         group: "一、putchar 与 getchar",
         items: [
           {
-            id: "p1", th: "PPT p18", kind: "定义", name: "putchar：输出一个字符", page: "教材 p70",
+            id: "p1", th: true, kind: "定义", name: "putchar：输出一个字符", page: "教材 p70",
             body: R`‹putchar› 是 put character（送出字符）的缩写，功能是在显示器上输出单个字符。形式 ‹putchar(字符变量或字符常量或整型值);›，参数是字符的编码值（int）。例如 ‹putchar('A');› 输出 A，‹putchar(x);› 输出字符变量 x 的值，‹putchar('\101');› 也输出 A，‹putchar('\n');› 换行。`,
             notes: [
               R`对控制字符执行控制功能，不在屏幕上显示：‹'\a'› 响铃，‹'\t'› 水平制表，‹'\b'› 退格（p70）`,
               R`使用前要 ‹#include <stdio.h>›（p70）。教材还介绍了函数原型：‹int putchar(int)›，返回类型 ‹int›，参数是 ‹int›（p70；原型里的 ‹_CRTIMP›、‹__cdecl› 等是 VC++ 的宏，了解即可）`
-            , R`老师原话（PPT p18）：^^putchar 函数是字符输出函数^^，输出^^单个^^字符：^^putchar(字符变量或字符常量或整型值);^^`],
+            , R`老师原话：^^putchar 函数是字符输出函数^^，输出^^单个^^字符：^^putchar(字符变量或字符常量或整型值);^^`],
             quiz: R`‹putchar(65)› 和 ‹putchar('A')› 输出一样吗？`
           },
           {
-            id: "p2", th: "PPT p22–24", kind: "定义", name: "getchar：读入一个字符", page: "教材 p71",
+            id: "p2", th: true, kind: "定义", name: "getchar：读入一个字符", page: "教材 p71",
             body: R`‹getchar› 是 get character（获取字符）的缩写，从键盘读入一个字符，通常赋给字符变量构成赋值语句：‹c=getchar();›。注意：①只能接受单个字符，输入数字也按字符处理；输入多于一个字符时，只接收第一个；②键盘输入以回车键表示结束，所以输入的字符数往往大于或等于 2（字符加回车）；③程序运行到本函数时等待用户输入。`,
             notes: [
               R`例4-4：输入 ‹a› 再按回车，‹c1=getchar(); c2=getchar();› 得 c1=‹'a'›（97），c2=回车（10）；‹printf("%d %d\n", c1, c2)› 输出 ‹97 10›（gcc 实测）`,
               R`‹getchar› 的返回类型是 ‹int›，原型 ‹int getchar(void)›（p71）`
-            , R`老师原话（PPT p22）：^^getchar 函数的功能是从键盘上输入^^一个^^字符^^`, R`老师原话（PPT p24）：注意：^^getchar 函数只能接受单个字符^^，输入的数字也按字符处理`],
+            , R`老师原话：^^getchar 函数的功能是从键盘上输入^^一个^^字符^^`, R`老师原话：注意：^^getchar 函数只能接受单个字符^^，输入的数字也按字符处理`],
             quiz: R`为什么例4-4 的 ‹c2› 读到的不是第二个字母？`
           },
           {
@@ -84,7 +83,7 @@
 
     types: [
       {
-        id: "t1", th: "PPT p18–21", kind: "读程序", output: "Book\tBo\nok\n", name: "putchar 输出字符：读程序写结果（例4-2）",
+        id: "t1", th: true, kind: "读程序", output: "Book\tBo\nok\n", name: "putchar 输出字符：读程序写结果（例4-2）",
         signal: R`连续多个 ‹putchar›，夹着 ‹'\t'›、‹'\n'›`,
         example: {
           q: R`写出下面程序的输出：
@@ -115,7 +114,7 @@ int main(void)
         practice: "教材 例4-2（p71）；辅导 习题解答 第4章 选择题1（p94）：输出一个字符用哪个函数"
       },
       {
-        id: "t2", th: "PPT p22–25", kind: "读程序", input: "a\n", output: "input a character\na\n\n97 10\n", name: "getchar 读入字符和回车（例4-4）",
+        id: "t2", th: true, kind: "读程序", input: "a\n", output: "input a character\na\n\n97 10\n", name: "getchar 读入字符和回车（例4-4）",
         signal: R`连续两次 ‹getchar›，只输入一个字符加回车，问输出`,
         example: {
           q: R`键盘输入 ‹a› 然后按回车，写出下面程序的输出：
