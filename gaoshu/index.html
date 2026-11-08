@@ -717,7 +717,7 @@ function uiFlag(name, dflt) { return store.ui[name] === undefined ? dflt : !!sto
 
 /* ===== 4b. 记录存到 GitHub：自动提交到本仓库的 records 分支；令牌只存在本机浏览器里 ===== */
 const SYNC_KEY = "gaoshu-sync-v1";
-const GH = { repo: "hengyoungmiao/study-site", branch: "records", state: "records/state.json", wrong: "records/wrong.json", review: "records/review.md" };
+const GH = { repo: "HENGEVER/study-site", branch: "records", state: "records/state.json", wrong: "records/wrong.json", review: "records/review.md" };
 let sync = { token: "", at: "", msg: "" };
 try { const s = JSON.parse(localStorage.getItem(SYNC_KEY) || "null"); if (s) sync = Object.assign(sync, { token: s.token || "", at: s.at || "" }); } catch (e) {}
 function syncSaveCfg() { try { localStorage.setItem(SYNC_KEY, JSON.stringify({ token: sync.token, at: sync.at })); } catch (e) {} }

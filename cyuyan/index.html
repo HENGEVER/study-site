@@ -787,7 +787,7 @@ function uiFlag(name, dflt) { return store.ui[name] === undefined ? dflt : !!sto
 
 /* ===== 4b. 记录存到 GitHub：自动提交到本仓库的 records 分支；令牌只存在本机浏览器里 ===== */
 const SYNC_KEY = "cyuyan-sync-v1";
-const GH = { repo: "hengyoungmiao/study-site", branch: "records", state: "records/cyuyan/state.json", wrong: "records/cyuyan/wrong.json", review: "records/cyuyan/review.md" };
+const GH = { repo: "HENGEVER/study-site", branch: "records", state: "records/cyuyan/state.json", wrong: "records/cyuyan/wrong.json", review: "records/cyuyan/review.md" };
 let sync = { token: "", at: "", msg: "" };
 try { const s = JSON.parse(localStorage.getItem(SYNC_KEY) || "null"); if (s) sync = Object.assign(sync, { token: s.token || "", at: s.at || "" }); } catch (e) {}
 /* 高数网页已经填过令牌的设备，直接借用同一个令牌（同一个仓库） */
