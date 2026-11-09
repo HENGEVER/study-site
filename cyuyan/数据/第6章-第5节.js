@@ -15,15 +15,14 @@
     chapter: 6,
     title: "do…while 语句",
     pages: "教材 p119–121",
-    sources: ["老师 PPT 第06章 p14–18（PPT 6.4 节）", "教材 6.5 p119–121（例6-6、6-7，图6-5）", "辅导 习题解答 第6章 选择题11、14，读程序6、7 p107–111"],
+    sources: ["教材 6.5 p119–121（例6-6、6-7，图6-5）", "辅导 习题解答 第6章 选择题11、14，读程序6、7 p107–111"],
     updated: "2026-11-03",
     exam: R`选择 2 次：‹do printf("%d\n",x-=2); while(!--x);› 输出什么（2018、2014 同一题）。读程序：do-while 里套 switch 累加，输入 0 0 结束（2017）。`,
     teacher: {
-      ppt: "PPT 第 14–18 页（PPT 的 6.4 节）",
       items: [
-        { t: R`^^do 语句[;] while(表达式);^^（while 后面有分号）`, p: "PPT p14", go: "p1" },
-        { t: R`^^do-while 循环至少要执行一次循环语句^^`, p: "PPT p15–16", go: "p2" },
-        { t: R`^^当有许多语句参加循环时，要用“{”和“}”把它们括起来^^`, p: "PPT p17", go: "p1" }
+        { t: R`^^do 语句[;] while(表达式);^^（while 后面有分号）`, go: "p1" },
+        { t: R`^^do-while 循环至少要执行一次循环语句^^`, go: "p2" },
+        { t: R`^^当有许多语句参加循环时，要用“{”和“}”把它们括起来^^`, go: "p1" }
       ]
     },
 
@@ -51,15 +50,15 @@
         group: "一、执行过程",
         items: [
           {
-            id: "p1", th: "PPT p14、p17", kind: "定义", name: "do…while 语句", page: "教材 p119–120",
+            id: "p1", th: true, kind: "定义", name: "do…while 语句", page: "教材 p119–120",
             body: R`一般形式：‹do 语句 while(表达式);›。==先执行循环体，再判断表达式==：为真（非 0）继续循环，为假结束。==循环体至少执行一次==。==while(表达式) 后面的分号不能少==；循环体多于一句要用 ‹{ }›。`,
-            notes: [R`老师原话（PPT p14）：^^do 语句[;] while(表达式);^^（while 后面有分号）`, R`老师原话（PPT p17）：^^当有许多语句参加循环时，要用“{”和“}”把它们括起来^^`],
+            notes: [R`老师原话：^^do 语句[;] while(表达式);^^（while 后面有分号）`, R`老师原话：^^当有许多语句参加循环时，要用“{”和“}”把它们括起来^^`],
             quiz: R`do…while 的循环体最少执行几次？`
           },
           {
-            id: "p2", th: "PPT p15–16", kind: "规则", name: "while 与 do…while 的比较", page: "教材 p120",
+            id: "p2", th: true, kind: "规则", name: "while 与 do…while 的比较", page: "教材 p120",
             body: R`条件第一次就成立时，两种循环结果相同；==条件第一次就不成立时，while 一次不执行，do…while 执行一次==。例6-7：输入 i，从 i 加到 10。输入 1 时两段都输出 55；输入 11 时 while 版输出 0，do…while 版输出 11。`,
-            notes: [R`老师原话（PPT p15–16）：^^do-while 循环至少要执行一次循环语句^^`],
+            notes: [R`老师原话：^^do-while 循环至少要执行一次循环语句^^`],
             quiz: R`例6-7 输入 11，两段程序各输出多少？`
           }
         ]
@@ -68,7 +67,7 @@
 
     types: [
       {
-        id: "t1", th: "PPT p15–16", kind: "读程序", input: "11\n", output: "while:sum=0\ndo-while:sum=11\n", name: "while 和 do…while 的差别（例6-7）",
+        id: "t1", th: true, kind: "读程序", input: "11\n", output: "while:sum=0\ndo-while:sum=11\n", name: "while 和 do…while 的差别（例6-7）",
         signal: R`同一个累加分别用 while 和 do…while 写，给一个一开始就不满足条件的初值`,
         example: {
           q: R`把例6-7 的两段程序合在一起。输入 ‹11›，写出输出；输入 ‹1› 呢？

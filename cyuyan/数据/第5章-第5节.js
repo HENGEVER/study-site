@@ -15,16 +15,15 @@
     chapter: 5,
     title: "switch 语句",
     pages: "教材 p102–104",
-    sources: ["老师 PPT 第05章 p43–49（PPT 5.4 节）", "教材 5.5 p102–104（例5-10、5-11）", "辅导 习题解答 第5章 选择题14、20、23，读程序4 p99–111", "辅导 实验5 改错题(3)、填空题(1) p51"],
+    sources: ["教材 5.5 p102–104（例5-10、5-11）", "辅导 习题解答 第5章 选择题14、20、23，读程序4 p99–111", "辅导 实验5 改错题(3)、填空题(1) p51"],
     updated: "2026-11-03",
     exam: "填空 2 次：switch 四则运算（2018、2014，补 ‹break›、‹b==0›、‹(float)›、‹scanf› 地址表）。读程序 3 次：用 switch 统计数字字符，某个 case 没有 break（2018、2014）；do-while 里套 switch 累加（2017）。",
     teacher: {
-      ppt: "PPT 第 43–49 页（PPT 的 5.4 节）",
       items: [
-        { t: R`‹switch(表达式)›：表达式是^^整数类型（包括字符型）^^；各 case 的常量表达式^^不能相同^^`, p: "PPT p43（红框）", go: "p1" },
-        { t: R`^^“case 常量表达式”只相当于一个语句标号^^，执行完不会自动跳出 switch`, p: "PPT p46", go: "p2" },
-        { t: R`^^遇 break 语句时，将跳出 switch 语句转到后续语句执行^^`, p: "PPT p44、p47–48（红框）", go: "p3" },
-        { t: R`表达式一般为^^整型^^，包括^^字符^^和^^枚举^^类型；多个 case 可以共用一组语句；default 可以省略`, p: "PPT p49", go: "p4" }
+        { t: R`‹switch(表达式)›：表达式是^^整数类型（包括字符型）^^；各 case 的常量表达式^^不能相同^^`, go: "p1" },
+        { t: R`^^“case 常量表达式”只相当于一个语句标号^^，执行完不会自动跳出 switch`, go: "p2" },
+        { t: R`^^遇 break 语句时，将跳出 switch 语句转到后续语句执行^^`, go: "p3" },
+        { t: R`表达式一般为^^整型^^，包括^^字符^^和^^枚举^^类型；多个 case 可以共用一组语句；default 可以省略`, go: "p4" }
       ]
     },
 
@@ -57,21 +56,21 @@
         group: "一、执行规则",
         items: [
           {
-            id: "p1", th: "PPT p43", kind: "定义", name: "switch 的一般形式", page: "教材 p102",
+            id: "p1", th: true, kind: "定义", name: "switch 的一般形式", page: "教材 p102",
             body: R`‹switch(表达式) { case 常量表达式1: 语句1; … case 常量表达式n: 语句n; default: 语句n+1; }›。计算表达式的值，逐个和 case 后的常量比较，==相等就从这个 case 开始执行==；都不相等执行 default 后的语句。`,
-            notes: [R`每个 case 后面可以有多条语句，不用 ‹{ }› 括起来（p104）`, R`老师原话（PPT p43（红框））：‹switch(表达式)›：表达式是^^整数类型（包括字符型）^^；各 case 的常量表达式^^不能相同^^`],
+            notes: [R`每个 case 后面可以有多条语句，不用 ‹{ }› 括起来（p104）`, R`老师原话：‹switch(表达式)›：表达式是^^整数类型（包括字符型）^^；各 case 的常量表达式^^不能相同^^`],
             quiz: R`switch 括号里的值和所有 case 都不相等、又没有 default，会怎样？`
           },
           {
-            id: "p2", th: "PPT p45–46", kind: "规则", name: "case 只是入口：没有 break 就往下执行", page: "教材 p103",
+            id: "p2", th: true, kind: "规则", name: "case 只是入口：没有 break 就往下执行", page: "教材 p103",
             body: R`“^^case 常量表达式^^”^^只相当于一个语句标号^^：值相等就转到这个标号执行，但==执行完不会自动跳出==，会继续执行后面所有 case（包括 default）的语句，直到遇到 break 或 switch 的右花括号。`,
-            notes: [R`老师原话（PPT p46）：^^“case 常量表达式”只相当于一个语句标号^^，执行完不会自动跳出 switch`],
+            notes: [R`老师原话：^^“case 常量表达式”只相当于一个语句标号^^，执行完不会自动跳出 switch`],
             quiz: R`例5-10 输入 7 输出什么？`
           },
           {
-            id: "p3", th: "PPT p47–48", kind: "规则", name: "break 跳出 switch", page: "教材 p103",
+            id: "p3", th: true, kind: "规则", name: "break 跳出 switch", page: "教材 p103",
             body: R`‹break;› 使流程跳出 switch，转到 switch 后面的语句。一般==每个 case 分支末尾都要写 break==（最后一个分支可以不写）。`,
-            notes: [R`嵌套 switch 里，内层的 break 只跳出内层 switch；内层 switch 结束后如果外层这个 case 没有 break，外层还会继续往下执行（辅导 读程序4）`, R`老师原话（PPT p44、p47–48（红框））：^^遇 break 语句时，将跳出 switch 语句转到后续语句执行^^`],
+            notes: [R`嵌套 switch 里，内层的 break 只跳出内层 switch；内层 switch 结束后如果外层这个 case 没有 break，外层还会继续往下执行（辅导 读程序4）`, R`老师原话：^^遇 break 语句时，将跳出 switch 语句转到后续语句执行^^`],
             quiz: R`内层 switch 里的 break 会跳出外层 switch 吗？`
           }
         ]
@@ -80,9 +79,9 @@
         group: "二、使用规定",
         items: [
           {
-            id: "p4", th: "PPT p49", kind: "规则", name: "switch 的几条规定", page: "教材 p104",
+            id: "p4", th: true, kind: "规则", name: "switch 的几条规定", page: "教材 p104",
             body: R`①表达式==一般为整型==（^^包括字符型^^、枚举型），==不能是实型==；②case 后的常量表达式==值不能相同==，也不能含变量；③每个 case 后可以有多条语句；④各 case 和 default 的==顺序可以变动==（每组都有 break 时结果不变）；⑤==default 可以省略==；⑥==多个 case 可以共用一组语句==：‹case 'a': case 'A': printf("Letter A\n"); break;›。`,
-            notes: [R`‹case 1+2:› 合法（常量表达式）；‹case 1.0:›、‹switch(w)›（w 是 float）不合法（辅导 选择题23）`, R`老师原话（PPT p49）：表达式一般为^^整型^^，包括^^字符^^和^^枚举^^类型；多个 case 可以共用一组语句；default 可以省略`],
+            notes: [R`‹case 1+2:› 合法（常量表达式）；‹case 1.0:›、‹switch(w)›（w 是 float）不合法（辅导 选择题23）`, R`老师原话：表达式一般为^^整型^^，包括^^字符^^和^^枚举^^类型；多个 case 可以共用一组语句；default 可以省略`],
             quiz: R`‹case 3: … case 1+2: …› 写在同一个 switch 里可以吗？`
           }
         ]
@@ -91,7 +90,7 @@
 
     types: [
       {
-        id: "t1", th: "PPT p45–46", kind: "读程序", input: "5\n", output: "input integer number: Friday\nSaturday\nSunday\nerror\n", name: "没有 break：一路执行到底（例5-10）",
+        id: "t1", th: true, kind: "读程序", input: "5\n", output: "input integer number: Friday\nSaturday\nSunday\nerror\n", name: "没有 break：一路执行到底（例5-10）",
         signal: R`switch 里有的 case 没有 break`,
         example: {
           q: R`输入 ‹5›，写出输出：
