@@ -4,11 +4,13 @@
 科目: 线性代数
 写入者: 线性代数科目项目
 创建日期: 2026-10-27
-更新日期: 2026-10-27
+更新日期: 2026-11-12
 状态: 完成
+2026-11-12：并入 1.6 分块矩阵（导图分支、板块⑦、知识点、题型 10–12、易错点 e17–e20）和教材「复习题 1」（混合自测 m17–m42，
+题源写「教材 复习题1 第几题」，复习题 2(2) 与 m14 重复，没再收）。
 
 恆说的「第一章复习」就是这一页（和高数第1章章末同一格式）：全章思维导图（可闭卷回忆）、题型板块关系图、
-考研书多讲的结论、综合题型卡、全章易错点、混合自测（题目覆盖 1.1–1.5，「对应题型」可跳回各小节）。
+考研书多讲的结论、综合题型卡、全章易错点、混合自测（题目覆盖 1.1–1.6，「对应题型」可跳回各小节）。
 页码一律是印刷页。教材 = 学校教材《线性代数》第1章；30讲 = 张宇《考研数学基础30讲·线性代数分册》第1、2、4讲；
 9讲 = 张宇《线性代数9讲》第4讲；李永乐 = 李永乐《线性代数辅导讲义》第2、4章；1000题 = 张宇1000题（数学一）基础篇、强化篇。
 教材、30讲 的页码标记在每页开头；9讲、李永乐、1000题 在每页末尾。所有数字答案已用代码验算。
@@ -17,9 +19,9 @@
   const R = String.raw;
   KB.addChapterEnd({
     chapter: 1,
-    pages: "教材 p1–41；30讲 第2讲 p45–81、第4讲 p114–138；9讲 第4讲 p42–49；李永乐 第2章 p30–67、第4章 p98–130",
-    sources: ["教材 第1章 1.1–1.5", "30讲 第2讲 习题2.1–2.14（p75–76，解答 p77–81）；第4讲 例4.6–4.8（p124–125）", "9讲 第4讲 公式1–12、例4.3（p42–48）", "李永乐 第2章 主要公式 p37–38、例2.27–2.30（p58–61）；第4章 例4.11（p114）", "1000题 基础篇 第1、2、4章；强化篇 第4章 第1、2题（p139，解析 p400）"],
-    updated: "2026-10-27",
+    pages: "教材 p1–47、复习题1 p51–54；30讲 第2讲 p45–81、第4讲 p114–138；9讲 第4讲 p42–49；李永乐 第2章 p30–67、第4章 p98–130",
+    sources: ["教材 第1章 1.1–1.6、复习题1（p51–54）", "30讲 第2讲 习题2.1–2.14（p75–76，解答 p77–81）；第4讲 例4.6–4.8（p124–125）", "9讲 第4讲 公式1–12、例4.3（p42–48）", "李永乐 第2章 主要公式 p37–38、例2.27–2.30（p58–61）；第4章 例4.11（p114）", "1000题 基础篇 第1、2、4章；强化篇 第4章 第1、2题（p139，解析 p400）"],
+    updated: "2026-11-12",
 
     mindmap: {
       title: "第一章复习导图",
@@ -71,13 +73,23 @@
             { label: "含参数的讨论", go: "1.5:p13" }
           ] }
         ] },
+        { label: "分块矩阵", go: "1.6", kids: [
+          { label: "1.6 分块矩阵", go: "1.6", kids: [
+            { label: "分块乘法 · 转置", go: "1.6:p4" },
+            { label: "按列分块", go: "1.6:p5" },
+            { label: "分块对角 · 副对角的逆", go: "1.6:p7" },
+            { label: R`分块三角：$|A||B|$`, go: "1.6:p8" },
+            { label: "分块初等变换与秩", go: "1.6:p13" }
+          ] }
+        ] },
         { label: "考研提升（本页）", go: "b5", kids: [
           { label: "① 矩阵运算", go: "b1" },
           { label: "② 行列式", go: "b2" },
           { label: "③ 逆与伴随", go: "b3" },
           { label: "④ 初等变换与等价", go: "b4" },
           { label: "⑤ 秩", go: "b5" },
-          { label: "⑥ 方程组的判定", go: "b6" }
+          { label: "⑥ 方程组的判定", go: "b6" },
+          { label: "⑦ 分块矩阵", go: "b7" }
         ] }
       ]
     },
@@ -88,7 +100,8 @@
       "1.2": ["t3", "t4"],
       "1.3": ["t2", "t8"],
       "1.4": ["t4", "t5", "t7"],
-      "1.5": ["t3", "t5", "t6", "t7", "t8", "t9"]
+      "1.5": ["t3", "t5", "t6", "t7", "t8", "t9"],
+      "1.6": ["t10", "t11"]
     },
 
     blocks: [
@@ -97,19 +110,21 @@
       { id: "b3", name: "③ 逆与伴随" },
       { id: "b4", name: "④ 初等变换与等价" },
       { id: "b5", name: "⑤ 秩" },
-      { id: "b6", name: "⑥ 方程组的判定" }
+      { id: "b6", name: "⑥ 方程组的判定" },
+      { id: "b7", name: "⑦ 分块矩阵" }
     ],
 
     framework: {
       title: "考研题型板块",
-      main: R`六个板块以「秩」为中心：行列式是秩的一个特例（方阵满秩 $\Leftrightarrow|A|\neq0$），初等变换是求秩的工具，可逆就是满秩，方程组有没有解看 $r(A)$ 和 $r(B)$。综合题常把两三个板块串成一道题。`,
+      main: R`七个板块以「秩」为中心：行列式是秩的一个特例（方阵满秩 $\Leftrightarrow|A|\neq0$），初等变换是求秩的工具，可逆就是满秩，方程组有没有解看 $r(A)$ 和 $r(B)$。分块矩阵是把前六块搬到「块」上再用一遍：块当元素算乘法、求逆、求行列式，块初等变换证秩。综合题常把两三个板块串成一道题。`,
       nodes: [
         { id: "B1", go: "b1", col: 0, row: 0, kind: "build", label: "① 矩阵运算", sub: "不交换 · 零因子 · 秩 1 矩阵" },
         { id: "B2", go: "b2", col: 1, row: 0, kind: "map", label: "② 行列式", sub: R`$|AB|=|A||B|$ · 展开 · 抽象型` },
         { id: "B3", go: "b3", col: 2, row: 0, kind: "prop", label: "③ 逆与伴随", sub: R`凑 $AB=E$ · $A^*$ 公式组` },
         { id: "B4", go: "b4", col: 0, row: 1, kind: "func", label: "④ 初等变换与等价", sub: "左行右列 · 等价 ⇔ 秩同" },
         { id: "B5", go: "b5", col: 1, row: 1, kind: "map", label: "⑤ 秩", sub: "定义 · 公式 · 两头夹" },
-        { id: "B6", go: "b6", col: 2, row: 1, kind: "prop", label: "⑥ 方程组的判定", sub: R`比较 $r(A)$、$r(B)$、$n$` }
+        { id: "B6", go: "b6", col: 2, row: 1, kind: "prop", label: "⑥ 方程组的判定", sub: R`比较 $r(A)$、$r(B)$、$n$` },
+        { id: "B7", go: "b7", col: 0, row: 2, kind: "build", label: "⑦ 分块矩阵", sub: R`块当元素 · $|A||B|$ · 块变换` }
       ],
       edges: [
         { from: "B1", to: "B3", label: "凑成 AB = E" },
@@ -119,14 +134,17 @@
         { from: "B4", to: "B5", label: "不改变秩" },
         { from: "B3", to: "B5", label: "可逆 ⇔ 满秩" },
         { from: "B5", to: "B6", label: "比较 r(A)、r(B)" },
-        { from: "B2", to: "B6", label: "克拉默 · |A| = 0" }
+        { from: "B2", to: "B6", label: "克拉默 · |A| = 0" },
+        { from: "B7", to: "B4", label: "块初等变换" },
+        { from: "B7", to: "B5", label: "构造分块证秩" }
       ],
       keys: [
         { q: R`方阵可逆有哪些等价说法？`, a: R`$A$ 可逆 $\Leftrightarrow|A|\neq0\Leftrightarrow r(A)=n\Leftrightarrow A$ 能只用行变换化成 $E\Leftrightarrow A$ 是初等矩阵的乘积 $\Leftrightarrow Ax=0$ 只有零解 $\Leftrightarrow Ax=b$ 有唯一解（教材 p15、p18、定理1.6 p32、定理1.7 p35、推论1.7 p39；30讲 第2讲 p73）。` },
         { q: R`三种初等变换对行列式、秩、方程组的解各有什么影响？`, a: R`行列式：互换变号、倍乘 $k$ 变 $k$ 倍、倍加不变（教材 p16–18）；秩：都不变（定理1.8 p36）；方程组：初等行变换得到同解方程组，列变换会打乱未知数（教材 p26、p29；30讲 第2讲 p63）。` },
         { q: R`伴随矩阵有哪些常用公式？`, a: R`$AA^*=A^*A=|A|E$；$|A^*|=|A|^{n-1}$；可逆时 $A^*=|A|A^{-1}$，$(A^*)^{-1}=\frac1{|A|}A$；$(kA)^*=k^{n-1}A^*$；$(A^*)^*=|A|^{n-2}A$；$r(A^*)=n,1,0$（李永乐 第2章 主要公式 p38）。` },
         { q: R`线性方程组的解怎么判定？`, a: R`非齐次：$r(A)<r(B)$ 无解，$r(A)=r(B)=n$ 唯一，$r(A)=r(B)<n$ 无穷多；齐次：$r(A)=n$ 只有零解，$r(A)<n$ 有非零解；方阵时可以先看 $|A|$（教材 定理1.9 p37、推论1.5–1.7 p39）。` },
-        { q: R`抽象矩阵的秩怎么求？`, a: R`两头夹：上界用 $r(AB)\leqslant\min\{r(A),r(B)\}$、$AB=O\Rightarrow r(A)+r(B)\leqslant n$、$r\leqslant$ 行数和列数；下界用「非零矩阵秩 $\geqslant1$」、$r(AB)\geqslant r(A)+r(B)-n$、乘可逆矩阵不变（30讲 第2讲 p73–74；9讲 第4讲 p43–46）。` }
+        { q: R`抽象矩阵的秩怎么求？`, a: R`两头夹：上界用 $r(AB)\leqslant\min\{r(A),r(B)\}$、$AB=O\Rightarrow r(A)+r(B)\leqslant n$、$r\leqslant$ 行数和列数；下界用「非零矩阵秩 $\geqslant1$」、$r(AB)\geqslant r(A)+r(B)-n$、乘可逆矩阵不变（30讲 第2讲 p73–74；9讲 第4讲 p43–46）。` },
+        { q: R`分块矩阵在综合题里怎么用？`, a: R`三件事：特殊形状直接写结果（分块对角、副对角的逆，分块三角的行列式 $|A||B|$，副对角带 $(-1)^{mn}$）；$M^*=|M|M^{-1}$ 对分块矩阵照样成立；构造 $\begin{pmatrix}A&O\\O&B\end{pmatrix}$ 再做块初等变换证秩（教材 1.6 p42–46；9讲 第3讲 p37）。` }
       ]
     },
 
@@ -224,6 +242,23 @@
             body: R`三个平面的方程联立成 $3\times3$ 方程组：==无解 $\Leftrightarrow$ 没有公共点==；==唯一解 $\Leftrightarrow$ 交于一点==；==$r(A)=r(B)=2$ $\Leftrightarrow$ 交于一条直线==；$r(A)=r(B)=1$ $\Leftrightarrow$ 三个平面重合。`,
             notes: [R`无解时再看 $r(A)$：$r(A)=1$ 是三个平行平面（至少两个不重合），$r(A)=2$ 是两两相交或两个平行（几何部分在空间解析几何学，这里只用秩判断有没有公共点）`],
             quiz: R`三个平面交于一条直线，系数矩阵的秩是几？`
+          }
+        ]
+      }
+      ,{
+        group: "⑦ 分块矩阵",
+        items: [
+          {
+            id: "p12", kind: "结论", name: "分块矩阵三件套：逆、行列式、伴随", page: "教材 p43–46；30讲 第2讲 p66–69",
+            body: R`$A$ 为 $m$ 阶、$B$ 为 $n$ 阶且可逆：==$\begin{pmatrix}A&O\\O&B\end{pmatrix}^{-1}=\begin{pmatrix}A^{-1}&O\\O&B^{-1}\end{pmatrix}$==，==$\begin{pmatrix}O&A\\B&O\end{pmatrix}^{-1}=\begin{pmatrix}O&B^{-1}\\A^{-1}&O\end{pmatrix}$==；==$\begin{vmatrix}A&*\\O&B\end{vmatrix}=|A||B|$==，==$\begin{vmatrix}O&A\\B&O\end{vmatrix}=(-1)^{mn}|A||B|$==；伴随一律走 ==$M^*=|M|M^{-1}$==。`,
+            notes: [R`分块三角的逆不用背，设四块待定、乘出来比较即可（1.6 节题型 3）`, R`一阶块也是块：复习题1 第1(7)题的 4 阶矩阵是「3 阶对角块 + 1 阶块」的副对角型`],
+            quiz: R`$A,B$ 都是 $n$ 阶可逆，$\begin{pmatrix}O&A\\B&O\end{pmatrix}^*$ 等于什么？`
+          },
+          {
+            id: "p13", kind: "方法", name: "构造分块矩阵证秩", page: "教材 例1.36 p46；9讲 第4讲 p46",
+            body: R`要证两个秩的和等于（或不小于）某个数：==把两个矩阵放进 $\begin{pmatrix}X&O\\O&Y\end{pmatrix}$==，它的秩就是 $r(X)+r(Y)$；再用块行（左乘）、块列（右乘）倍加，==变成另一个分块对角矩阵==，两边秩相等。`,
+            notes: [R`例：$\begin{pmatrix}A&O\\O&E-A\end{pmatrix}\to\begin{pmatrix}A-A^2&O\\O&E\end{pmatrix}$ 给出 $r(A)+r(E-A)=r(A-A^2)+n$`, R`$\begin{pmatrix}A&O\\C&B\end{pmatrix}$ 的秩 $\geqslant r(A)+r(B)$，由此得 Sylvester 不等式 $r(AB)\geqslant r(A)+r(B)-n$`],
+            quiz: R`$A$ 是 $n$ 阶矩阵，$A^2=E$，$r(A+E)+r(A-E)=$？（仿照 $A^2=A$ 的做法）`
           }
         ]
       }
@@ -440,6 +475,51 @@
         pitfall: R`!!由 $|A|=0$ 求出 $\lambda$ 后两个都保留!!；!!把「两个不同的解」理解成「恰有两个解」!!`,
         practice: R`30讲 第4讲 例4.8（p125）；李永乐 第4章 例4.7（p110–111）；1.5 节题型 4`
       }
+      ,{
+        id: "t10", block: "b7", name: "分块矩阵 + 伴随：求行列式",
+        signal: R`分块矩阵的块里有 ==$A^*$、$A^{-1}$、$kA$==，问整个矩阵的行列式`,
+        example: { q: R`设 $A,B$ 都是 3 阶矩阵，若 $|A|=-3$，$|B|=4$，$C=\begin{pmatrix}2A^*&(AB)^*\\O&B^{-1}\end{pmatrix}$，则 $|C|=$ ____。`, src: "1000题基础篇 第2章 第6题（p48）" },
+        idea: {
+          key: R`==先看形状：分块三角就只管对角块==，右上块是什么都不用算；再用 $|kA|=k^n|A|$、$|A^*|=|A|^{n-1}$、$|A^{-1}|=\frac1{|A|}$。`,
+          how: [R`++认出分块三角（或副对角）形状，写出 $|C|=|\text{块}_1||\text{块}_2|$++`, R`++逐块用行列式公式：数乘提 $k^n$，伴随是 $|A|^{n-1}$，逆是倒数++`, R`++代入数值++`],
+          refs: [{ src: "教材 定理1.10 p45", text: R`$\begin{vmatrix}A&D\\O&B\end{vmatrix}=|A||B|$，其中 $D$ 为 $m$ 行 $n$ 列的任意矩阵` }, { src: "30讲 第2讲 例2.11 p62", text: R`因 $|kA|=k^{n}|A|$，$|AB|=|A||B|$，$|A^{-1}|=\frac{1}{|A|}$，$|B^{*}|=|B|^{n-1}$` }]
+        },
+        think: R`左下是 $O$，所以 $|C|=|2A^*|\cdot|B^{-1}|$；右上的 $(AB)^*$ 是干扰项`,
+        first: R`$|C|=|2A^*|\cdot|B^{-1}|$`,
+        steps: [R`++算 $|2A^*|$++：3 阶，$|2A^*|=2^3|A^*|=8|A|^2=8\times9=72$`, R`++算 $|B^{-1}|$++：$\frac1{|B|}=\frac14$`, R`++相乘++：$|C|=72\times\frac14=18$`],
+        pitfall: R`!!$|2A^*|$ 只乘一个 2!!；!!去算右上的 $(AB)^*$!!`,
+        practice: R`1000题基础篇 第2章 第6题（p48）；教材 复习题1 第1(3)题（p51）；30讲 第2讲 例2.11（p62）`
+      },
+      {
+        id: "t11", block: "b3", name: "矩阵方程里有 A*：乘 A 把伴随消掉",
+        signal: R`等式里有 ==$A^*$ 或 $A^{-1}$ 夹在乘积中间==，要求未知矩阵 $B$`,
+        example: { q: R`设矩阵 $A,B$ 满足 $A^*BA=2BA-8E$，其中 $A=\begin{pmatrix}1&0&0\\0&-2&0\\0&0&1\end{pmatrix}$，则 $B=$ ____。`, src: "教材 复习题1 第1(4)题（p51）" },
+        idea: {
+          key: R`==右乘 $A^{-1}$ 去掉右边的 $A$，左乘 $A$ 把 $A^*$ 变成 $|A|E$==，整理成 $(\cdots)B=cE$ 再求逆。`,
+          how: [R`++先算 $|A|$，确认 $A$ 可逆++`, R`++两边右乘 $A^{-1}$，消掉每一项右边的 $A$++`, R`++两边左乘 $A$，用 $AA^*=|A|E$++`, R`++把 $B$ 提到一边：$(\cdots)B=cE$，求逆得 $B$++`],
+          refs: [{ src: "李永乐 第2章 主要公式 p38", text: R`$AA^*=A^*A=|A|E$` }, { src: "30讲 第2讲 p62", text: R`由公式 $AA^{*}=\left|A\right|E$，得 $\frac{A}{\left|A\right|}A^{*}=E$` }]
+        },
+        think: R`$A^*$ 不好直接算进方程，但 $AA^*=|A|E$ 是数量矩阵。先右乘 $A^{-1}$ 把 $BA$ 里的 $A$ 去掉，再左乘 $A$ 消掉 $A^*$`,
+        first: R`$|A|=-2$；右乘 $A^{-1}$：$A^*B=2B-8A^{-1}$`,
+        steps: [R`++左乘 $A$++：$AA^*B=2AB-8E$，即 $-2B=2AB-8E$`, R`++移项++：$2AB+2B=8E$，$(A+E)B=4E$`, R`++求逆++：$A+E=\mathrm{diag}(2,-1,2)$，$B=4(A+E)^{-1}=\mathrm{diag}(2,-4,2)$（已用代码代回原式验算）`],
+        pitfall: R`!!左乘、右乘混用!!（只能两边同侧乘）；!!$AA^*$ 写成 $E$!!`,
+        practice: R`教材 复习题1 第1(1)、1(4)题（p51）；1.4 节题型「含逆、转置的矩阵方程」`
+      },
+      {
+        id: "t12", block: "b2", name: "AAᵀ = E 型：插入 E 求 |A + E|、|E − A|",
+        signal: R`给出 ==$AA^{\mathrm T}=E$（或 $A^{\mathrm T}=A^{-1}$）和 $|A|$ 的符号==，求 $|A\pm E|$ 或证 $E-A$ 不可逆`,
+        example: { q: R`设 $A$ 是 $n$ 阶矩阵，$AA^{\mathrm T}=E$，$|A|<0$，求 $|A+E|$。`, src: "教材 复习题1 第3(3)题（p53）" },
+        idea: {
+          key: R`==把 $E$ 换成 $AA^{\mathrm T}$，提出 $A$==，得到 $|A+E|=|A|\cdot|E+A^{\mathrm T}|=|A||A+E|$，再解这个「方程」。`,
+          how: [R`++由 $AA^{\mathrm T}=E$ 得 $|A|^2=1$，结合符号定出 $|A|$++`, R`++$A+E=A+AA^{\mathrm T}=A(E+A^{\mathrm T})$++`, R`++取行列式，用 $|E+A^{\mathrm T}|=|(E+A)^{\mathrm T}|=|E+A|$++`, R`++移项解出 $|A+E|$++`],
+          refs: [{ src: "教材 p12、性质1.11 p18", text: R`$|A^{\mathrm T}|=|A|$；设有同阶方阵 $A$ 和 $B$，则 $|AB|=|A||B|$` }, { src: "教材 复习题1 第4(7)题 p53", text: R`设 $A$ 为奇数阶方阵，且 $|A|=1$，$A^{\mathrm T}=A^{-1}$。试证：$E-A$ 不可逆` }]
+        },
+        think: R`$A+E$ 没有现成公式。$E=AA^{\mathrm T}$ 让 $A$ 能提出来，剩下的 $E+A^{\mathrm T}$ 转置一下又回到 $A+E$，得到一个关于 $|A+E|$ 的方程`,
+        first: R`$|A|^2=|AA^{\mathrm T}|=1$，$|A|<0$，所以 $|A|=-1$`,
+        steps: [R`++插入 $E$++：$|A+E|=|A+AA^{\mathrm T}|=|A(E+A^{\mathrm T})|=|A|\cdot|E+A^{\mathrm T}|$`, R`++转置++：$|E+A^{\mathrm T}|=|(E+A)^{\mathrm T}|=|A+E|$，所以 $|A+E|=-|A+E|$`, R`++解出++：$2|A+E|=0$，$|A+E|=0$`],
+        pitfall: R`!!由 $AA^{\mathrm T}=E$ 直接说 $|A|=1$!!；!!$|A+E|$ 拆成 $|A|+|E|$!!`,
+        practice: R`教材 复习题1 第3(3)、4(7)题（p53）`
+      }
     ],
 
     pitfalls: [
@@ -454,6 +534,10 @@
       { id: "e14", wrong: R`由 $|A|=0$ 求出几个参数值，全写成答案`, why: R`不同参数值下秩、解的情况可能不同`, right: R`每个候选值代回去验证`, test: R`$\begin{pmatrix}a&-1&-1\\-1&a&-1\\-1&-1&a\end{pmatrix}$ 秩为 2，$a=$？`, ans: R`只有 $a=2$；$a=-1$ 时秩为 1`, link: "题型 5" },
       { id: "e15", wrong: R`消元时直接除以含参数的数`, why: R`参数可能使它为 0，这一步就不是初等变换了`, right: R`先把含参数的元素换到后面；要除时单独讨论它为 0 的情形`, test: R`$\left(\begin{array}{cc|c}a&1&1\\1&1&1\end{array}\right)$ 第 1 行除以 $a$ 前要讨论什么？`, ans: R`$a=0$；更好的做法是先交换两行`, link: "题型 8" },
       { id: "e16", wrong: R`克拉默法则在 $D=0$ 时说方程组无解`, why: R`克拉默法则只管 $D\neq0$ 的情形；$D=0$ 时可能无解，也可能无穷多解`, right: R`$D=0$ 时用增广矩阵比秩（1.3、1.5 节）`, test: R`$\begin{cases}x+y=1\\2x+2y=2\end{cases}$ 的 $D$ 和解？`, ans: R`$D=0$，有无穷多解`, link: "1.3 知识点 克拉默法则" }
+      ,{ id: "e17", wrong: R`$|2A^*B^{-1}|=2|A^*||B^{-1}|$`, why: R`$2A^*B^{-1}$ 是 $n$ 阶矩阵，数 2 乘进了每一行，提出来是 $2^n$`, right: R`$|kM|=k^n|M|$：$|2A^*B^{-1}|=2^n|A|^{n-1}/|B|$`, test: R`$n$ 阶，$|A|=2$，$|B|=-3$，$|2A^*B^{-1}|=$？`, ans: R`$2^n\cdot2^{n-1}\cdot\left(-\frac13\right)=-\frac{2^{2n-1}}3$`, link: "知识点 行列式的运算公式" },
+      { id: "e18", wrong: R`$(kA)^*=kA^*$`, why: R`伴随的每个元素是 $n-1$ 阶代数余子式，每个都提出 $k^{n-1}$`, right: R`$(kA)^*=k^{n-1}A^*$`, test: R`3 阶矩阵，$(2A)^*$ 是 $A^*$ 的几倍？`, ans: R`$4$ 倍`, link: "知识点 伴随矩阵公式组" },
+      { id: "e19", wrong: R`$(A^{-1}+B^{-1})^{-1}=A+B$`, why: R`逆运算对加法不分配；要先把和写成乘积`, right: R`$A^{-1}+B^{-1}=A^{-1}(A+B)B^{-1}$，所以 $(A^{-1}+B^{-1})^{-1}=B(A+B)^{-1}A$`, test: R`$A=B=E$ 时左边是多少？$A+B$ 呢？`, ans: R`左边 $=(2E)^{-1}=\frac12E$，$A+B=2E$，不相等`, link: "题型 11" },
+      { id: "e20", wrong: R`$AA^{\mathrm T}=E\Rightarrow|A|=1$`, why: R`取行列式只得到 $|A|^2=1$`, right: R`$|A|=\pm1$，符号要看别的条件`, test: R`$A=\begin{pmatrix}-1&0\\0&1\end{pmatrix}$ 满足 $AA^{\mathrm T}=E$ 吗？$|A|=$？`, ans: R`满足；$|A|=-1$`, link: "题型 12" }
     ],
 
     mixed: [
@@ -473,6 +557,32 @@
       { id: "m14", block: "b3", level: "选择", q: R`设 $n$ 阶方阵 $A,B,C$ 满足 $ABC=E$，则必有 (A) $ACB=E$　(B) $CBA=E$　(C) $BAC=E$　(D) $BCA=E$`, src: "30讲 第2讲 习题2.3（p75，解答 p78）", hint: R`$A(BC)=E$，方阵互为逆矩阵，可以交换。`, ans: R`(D)`, go: "1.2:t2" },
       { id: "m15", block: "b6", level: "选择", q: R`设 $A$ 是 $m\times n$ 矩阵，$B$ 是 $n\times m$ 矩阵，则 (A) 当 $m>n$ 时，必有 $|AB|=0$　(B) 当 $m>n$ 时，$AB$ 必可逆　(C) 当 $n>m$ 时，$ABx=0$ 有唯一零解　(D) 当 $n>m$ 时，必有 $r(AB)<m$`, src: "1000题基础篇 第4章 第3题（p54）", hint: R`$AB$ 是 $m$ 阶，$r(AB)\leqslant\min\{m,n\}$。`, ans: R`(A)`, go: "t6" },
       { id: "m16", block: "b3", level: "填空", q: R`设 $A=\begin{pmatrix}1&0&0&0\\-2&3&0&0\\0&-4&5&0\\0&0&-6&7\end{pmatrix}$，$E$ 为 4 阶单位矩阵，且 $B=(E+A)^{-1}(E-A)$，则 $(E+B)^{-1}=$ ____。`, src: "30讲 第2讲 习题2.10（p76，解答 p80）", hint: R`$E+B=(E+A)^{-1}[(E+A)+(E-A)]=2(E+A)^{-1}$，不必算出 $B$。`, ans: R`$\frac12(E+A)=\begin{pmatrix}1&0&0&0\\-1&2&0&0\\0&-2&3&0\\0&0&-3&4\end{pmatrix}$`, go: "t4" }
+      ,{ id: "m17", block: "b3", level: "填空", q: R`设三阶方阵 $A,B$ 满足 $A^{-1}BA=6A+BA$，且 $A=\begin{pmatrix}\frac13&0&0\\0&\frac14&0\\0&0&\frac17\end{pmatrix}$，则 $B=$ ____。`, src: "教材 复习题1 第1(1)题（p51）", hint: R`两边右乘 $A^{-1}$：$A^{-1}B=6E+B$，即 $(A^{-1}-E)B=6E$；$A^{-1}-E=\mathrm{diag}(2,3,6)$。`, ans: R`$B=6(A^{-1}-E)^{-1}=\mathrm{diag}(3,2,1)$`, go: "t11" },
+      { id: "m18", block: "b3", level: "填空", q: R`设 $A=\begin{pmatrix}1&0&0\\2&2&0\\3&4&5\end{pmatrix}$，则 $(A^*)^{-1}=$ ____。`, src: "教材 复习题1 第1(2)题（p51）", hint: R`由 $AA^*=|A|E$ 得 $(A^*)^{-1}=\frac{A}{|A|}$；下三角，$|A|=1\cdot2\cdot5$。`, ans: R`$\frac1{10}A=\frac1{10}\begin{pmatrix}1&0&0\\2&2&0\\3&4&5\end{pmatrix}$`, go: "1.2:t5" },
+      { id: "m19", block: "b2", level: "填空", q: R`设 $A,B$ 均为 $n$ 阶矩阵，$|A|=2$，$|B|=-3$，则 $|2A^*B^{-1}|=$ ____。`, src: "教材 复习题1 第1(3)题（p51）", hint: R`$|kM|=k^n|M|$，$|A^*|=|A|^{n-1}$，$|B^{-1}|=\frac1{|B|}$。`, ans: R`$2^n\cdot2^{n-1}\cdot\left(-\frac13\right)=-\frac{2^{2n-1}}3$`, go: "p3" },
+      { id: "m20", block: "b3", level: "填空", q: R`设矩阵 $A,B$ 满足 $A^*BA=2BA-8E$，其中 $A=\begin{pmatrix}1&0&0\\0&-2&0\\0&0&1\end{pmatrix}$，则 $B=$ ____。`, src: "教材 复习题1 第1(4)题（p51）", hint: R`右乘 $A^{-1}$，再左乘 $A$，用 $AA^*=|A|E$，$|A|=-2$：得 $(A+E)B=4E$。`, ans: R`$\mathrm{diag}(2,-4,2)$`, go: "t11" },
+      { id: "m21", block: "b3", level: "填空", q: R`设 $n\ (n>2)$ 阶矩阵 $A$ 可逆，则 $(A^*)^*=$ ____。`, src: "教材 复习题1 第1(5)题（p51）", hint: R`对 $A^*$ 用 $M^*=|M|M^{-1}$：$|A^*|=|A|^{n-1}$，$(A^*)^{-1}=\frac{A}{|A|}$。`, ans: R`$|A|^{n-2}A$`, go: "p4" },
+      { id: "m22", block: "b7", level: "填空", q: R`设 $A$ 和 $B$ 为可逆矩阵，$X=\begin{pmatrix}O&A\\B&O\end{pmatrix}$ 为分块矩阵，则 $X^{-1}=$ ____。`, src: "教材 复习题1 第1(6)题（p51）", hint: R`副对角分块：各块求逆，再交换位置；按块乘一下验证。`, ans: R`$\begin{pmatrix}O&B^{-1}\\A^{-1}&O\end{pmatrix}$`, go: "1.6:t4" },
+      { id: "m23", block: "b7", level: "填空", q: R`设 $A=\begin{pmatrix}0&a_1&0&0\\0&0&a_2&0\\0&0&0&a_3\\a_4&0&0&0\end{pmatrix}$，若 $A$ 可逆，则 $A^{-1}=$ ____。`, src: "教材 复习题1 第1(7)题（p51）", hint: R`分成 $\begin{pmatrix}O&D\\a_4&O\end{pmatrix}$，$D=\mathrm{diag}(a_1,a_2,a_3)$ 是 3 阶，$(a_4)$ 是 1 阶；逆为 $\begin{pmatrix}O&a_4^{-1}\\D^{-1}&O\end{pmatrix}$。`, ans: R`$\begin{pmatrix}0&0&0&\frac1{a_4}\\\frac1{a_1}&0&0&0\\0&\frac1{a_2}&0&0\\0&0&\frac1{a_3}&0\end{pmatrix}$`, go: "1.6:t4" },
+      { id: "m24", block: "b2", level: "选择", q: R`若 $\alpha_1,\alpha_2,\alpha_3,\beta_1,\beta_2$ 都是四维列向量，且 $|\alpha_1\ \alpha_2\ \alpha_3\ \beta_1|=m$，$|\alpha_1\ \alpha_2\ \beta_2\ \alpha_3|=n$，则 $|\alpha_3\ \alpha_2\ \alpha_1\ (\beta_1+\beta_2)|=$ (A) $m+n$　(B) $-m-n$　(C) $n-m$　(D) $m-n$`, src: "教材 复习题1 第2(1)题（p52）", hint: R`按第 4 列拆成两个行列式；各自对调列变回已知的顺序，数对调次数。`, ans: R`(C)：$|\alpha_3\alpha_2\alpha_1\beta_1|=-m$（对调 1、3 列），$|\alpha_3\alpha_2\alpha_1\beta_2|=-|\alpha_1\alpha_2\alpha_3\beta_2|=|\alpha_1\alpha_2\beta_2\alpha_3|=n$`, go: "1.3:t10" },
+      { id: "m25", block: "b2", level: "选择", q: R`设 $A,B$ 为同阶方阵，若 $AB=O$，则必有 (A) $A=O$ 或 $B=O$　(B) $A+B=O$　(C) $|A|=0$ 或 $|B|=0$　(D) $|A|+|B|=0$`, src: "教材 复习题1 第2(3)题（p52）", hint: R`两边取行列式；(A) 用 $\begin{pmatrix}1&0\\0&0\end{pmatrix}\begin{pmatrix}0&0\\0&1\end{pmatrix}=O$ 排除。`, ans: R`(C)：$|A||B|=0$`, go: "1.6:t7" },
+      { id: "m26", block: "b3", level: "选择", q: R`设 $A,B,A+B,A^{-1}+B^{-1}$ 均为 $n$ 阶可逆矩阵，则 $(A^{-1}+B^{-1})^{-1}$ 等于 (A) $A^{-1}+B^{-1}$　(B) $A+B$　(C) $B(A+B)^{-1}A$　(D) $(A+B)^{-1}$`, src: "教材 复习题1 第2(4)题（p52）", hint: R`把和写成乘积：$A^{-1}+B^{-1}=A^{-1}(B+A)B^{-1}$，再用 $(PQR)^{-1}=R^{-1}Q^{-1}P^{-1}$。`, ans: R`(C)`, go: "1.2:t2" },
+      { id: "m27", block: "b4", level: "选择", q: R`设 $A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\\a_{31}&a_{32}&a_{33}\end{pmatrix}$，$B=\begin{pmatrix}a_{21}&a_{22}&a_{23}\\a_{11}&a_{12}&a_{13}\\a_{31}+a_{11}&a_{32}+a_{12}&a_{33}+a_{13}\end{pmatrix}$，$P_1=\begin{pmatrix}0&1&0\\1&0&0\\0&0&1\end{pmatrix}$，$P_2=\begin{pmatrix}1&0&0\\0&1&0\\1&0&1\end{pmatrix}$，则必有 (A) $AP_1P_2=B$　(B) $AP_2P_1=B$　(C) $P_1P_2A=B$　(D) $P_2P_1A=B$`, src: "教材 复习题1 第2(5)题（p52）", hint: R`$B$ 是对 $A$ 做行变换，所以左乘；先「第 1 行加到第 3 行」（$P_2$），再「交换 1、2 行」（$P_1$），后做的写在左边。`, ans: R`(C)：$P_1(P_2A)=B$`, go: "1.4:t4" },
+      { id: "m28", block: "b1", level: "选择", q: R`设 $n$ 维行向量 $\alpha=\left(\frac12,0,\cdots,0,\frac12\right)$，矩阵 $A=E-\alpha^{\mathrm T}\alpha$，$B=E+2\alpha^{\mathrm T}\alpha$，则 $AB=$ (A) $O$　(B) $-E$　(C) $E$　(D) $E+\alpha^{\mathrm T}\alpha$`, src: "教材 复习题1 第2(6)题（p52）", hint: R`展开后出现 $\alpha^{\mathrm T}(\alpha\alpha^{\mathrm T})\alpha$，中间的 $\alpha\alpha^{\mathrm T}=\frac14+\frac14$ 是一个数。`, ans: R`(C)：$AB=E+\alpha^{\mathrm T}\alpha-2\cdot\frac12\alpha^{\mathrm T}\alpha=E$`, go: "1.1:t3" },
+      { id: "m29", block: "b3", level: "选择", q: R`设 $A$ 是 $n\ (n\geqslant3)$ 阶方阵，$k$ 为常数，$k\neq0,\pm1$，则必有 $(kA)^*=$ (A) $kA^*$　(B) $k^{n-1}A^*$　(C) $k^nA^*$　(D) $k^{-1}A^*$`, src: "教材 复习题1 第2(7)题（p52）", hint: R`$(kA)^*$ 的每个元素是 $kA$ 的 $n-1$ 阶代数余子式，每行提出一个 $k$。`, ans: R`(B)`, go: "p4" },
+      { id: "m30", block: "b1", level: "解答", q: R`求与矩阵 $\begin{pmatrix}1&1\\0&1\end{pmatrix}$ 关于乘法可交换的所有矩阵。`, src: "教材 复习题1 第3(1)题（p52）", hint: R`设 $X=\begin{pmatrix}a&b\\c&d\end{pmatrix}$；也可以把矩阵写成 $E+J$，$J=\begin{pmatrix}0&1\\0&0\end{pmatrix}$，只要 $XJ=JX$。`, ans: R`$c=0$，$a=d$：$X=\begin{pmatrix}a&b\\0&a\end{pmatrix}$，$a,b$ 任意`, go: "1.1:t2" },
+      { id: "m31", block: "b3", level: "解答", q: R`已知实矩阵 $A=(a_{ij})_{3\times3}$ 满足：① $a_{ij}=A_{ij}\ (i,j=1,2,3)$，$A_{ij}$ 是 $a_{ij}$ 的代数余子式；② $a_{11}\neq0$。求 $|A|$。`, src: "教材 复习题1 第3(2)题（p53）", hint: R`① 就是 $A^*=A^{\mathrm T}$，于是 $AA^{\mathrm T}=|A|E$，取行列式得 $|A|^2=|A|^3$；再按第 1 行展开看 $|A|$ 的符号。`, ans: R`$|A|=a_{11}^2+a_{12}^2+a_{13}^2>0$，所以 $|A|=1$`, go: "1.2:t5" },
+      { id: "m32", block: "b2", level: "解答", q: R`设 $A$ 是 $n$ 阶矩阵，$AA^{\mathrm T}=E$，$|A|<0$，求 $|A+E|$。`, src: "教材 复习题1 第3(3)题（p53）", hint: R`$|A|=-1$；$|A+E|=|A+AA^{\mathrm T}|=|A||E+A^{\mathrm T}|$。`, ans: R`$|A+E|=-|A+E|$，所以 $|A+E|=0$`, go: "t12" },
+      { id: "m33", block: "b4", level: "解答", q: R`设 $A$ 是 $n$ 阶可逆方阵，将 $A$ 的第 $i$ 行和第 $j$ 行对换后得到的矩阵记作 $B$。① 证明 $B$ 可逆；② 求 $AB^{-1}$。`, src: "教材 复习题1 第3(4)题（p53）", hint: R`$B=E_{ij}A$（$E_{ij}$ 是对换 $i,j$ 行的初等矩阵），$E_{ij}^{-1}=E_{ij}$。`, ans: R`① $|B|=-|A|\neq0$；② $AB^{-1}=AA^{-1}E_{ij}^{-1}=E_{ij}$`, go: "1.4:t8" },
+      { id: "m34", block: "b1", level: "证明", q: R`若方阵 $A$ 与任何方阵可交换，求证：$A$ 必为数量矩阵。`, src: "教材 复习题1 第4(2)题（p53）", hint: R`取特殊的方阵 $E_{ij}$（只有 $(i,j)$ 元为 1）：$AE_{ij}$ 的第 $j$ 列是 $A$ 的第 $i$ 列，$E_{ij}A$ 的第 $i$ 行是 $A$ 的第 $j$ 行。`, ans: R`比较 $AE_{ij}=E_{ij}A$ 的第 $j$ 列：$a_{ki}=0\ (k\neq i)$，$a_{ii}=a_{jj}$；所以 $A=aE$`, go: "1.1:t2" },
+      { id: "m35", block: "b1", level: "证明", q: R`设 $A$ 与 $B$ 都是对称矩阵，求证：$AB=BA$ 的充要条件是 $AB$ 也是对称矩阵。`, src: "教材 复习题1 第4(3)题（p53）", hint: R`算 $(AB)^{\mathrm T}$。`, ans: R`$(AB)^{\mathrm T}=B^{\mathrm T}A^{\mathrm T}=BA$，所以 $AB$ 对称 $\Leftrightarrow AB=BA$`, go: "1.1:t6" },
+      { id: "m36", block: "b1", level: "证明", q: R`已知 $A$ 为对角矩阵，且对角元两两不相等，$B$ 与 $A$ 同阶。若 $AB=BA$，求证：$B$ 为对角矩阵。`, src: "教材 复习题1 第4(5)题（p53）", hint: R`左乘对角矩阵是各行乘 $a_i$，右乘是各列乘 $a_j$；比较 $(i,j)$ 元。`, ans: R`$a_ib_{ij}=b_{ij}a_j\Rightarrow(a_i-a_j)b_{ij}=0$，$i\neq j$ 时 $a_i\neq a_j$，所以 $b_{ij}=0$`, go: "1.1:t2" },
+      { id: "m37", block: "b2", level: "证明", q: R`设 $A$ 为奇数阶方阵，且 $|A|=1$，$A^{\mathrm T}=A^{-1}$。试证：$E-A$ 不可逆。`, src: "教材 复习题1 第4(7)题（p53）", hint: R`把 $E$ 换成 $AA^{\mathrm T}$：$|E-A|=|A||A^{\mathrm T}-E|$；再用奇数阶 $|-M|=-|M|$。`, ans: R`$|E-A|=|A^{\mathrm T}-E|=|A-E|=(-1)^n|E-A|=-|E-A|$，所以 $|E-A|=0$`, go: "t12" },
+      { id: "m38", block: "b3", level: "证明", q: R`若 $A,B$ 是 $n$ 阶矩阵，且 $E+AB$ 可逆。证明：$E+BA$ 也可逆，且 $(E+BA)^{-1}=E-B(E+AB)^{-1}A$。`, src: "教材 复习题1 第4(8)题（p53）", hint: R`直接把 $(E+BA)$ 乘上右边，展开后把 $B(\cdots)A$ 的项合并：$B(E+AB)^{-1}A+BAB(E+AB)^{-1}A=B(E+AB)(E+AB)^{-1}A$。`, ans: R`乘积 $=E+BA-B(E+AB)(E+AB)^{-1}A=E+BA-BA=E$`, go: "1.2:t2" },
+      { id: "m39", block: "b3", level: "证明", q: R`每个元素均为整数的矩阵称为整数矩阵。若 $A$ 为可逆整数矩阵，求证：$A^{-1}$ 也是整数矩阵的充要条件是 $|A|=\pm1$。`, src: "教材 复习题1 第4(9)题（p53）", hint: R`必要性：$|A||A^{-1}|=1$，两个都是整数；充分性：$A^{-1}=\frac{A^*}{|A|}$，$A^*$ 的元素是整数矩阵的代数余子式。`, ans: R`必要：两个整数之积为 1，只能 $\pm1$；充分：$A^{-1}=\pm A^*$ 是整数矩阵`, go: "1.2:t1" },
+      { id: "m40", block: "b2", level: "证明", q: R`证明 $\begin{vmatrix}1+a_1&1&\cdots&1&1\\1&1+a_2&\cdots&1&1\\\vdots&\vdots&&\vdots&\vdots\\1&1&\cdots&1+a_n&1\\1&1&\cdots&1&1\end{vmatrix}=a_1a_2\cdots a_n$。`, src: "教材 复习题1 第4(10)③题（p54）", hint: R`前 $n$ 行都减去最后一行。`, ans: R`第 $i$ 行变成只有 $(i,i)$ 元为 $a_i$，最后一行全是 1，成为下三角，值 $=a_1\cdots a_n\cdot1$`, go: "1.3:t1" },
+      { id: "m41", block: "b3", level: "证明", q: R`设 $A$ 为 $n$ 阶非零（实）方阵，$A^*=A^{\mathrm T}$，求证：$|A|\neq0$。`, src: "教材 复习题1 第4(11)题（p54）", hint: R`反证：若 $|A|=0$，则 $AA^{\mathrm T}=AA^*=O$；看 $AA^{\mathrm T}$ 的对角元。`, ans: R`$AA^{\mathrm T}$ 的 $(i,i)$ 元 $=\sum_ja_{ij}^2=0$，得 $A=O$，矛盾`, go: "1.2:t5" },
+      { id: "m42", block: "b5", level: "证明", q: R`设 $A=E-\alpha\alpha^{\mathrm T}$，其中 $\alpha$ 是 $n$ 维非零列向量。证明：① $A^2=A\Leftrightarrow\alpha^{\mathrm T}\alpha=1$；② 当 $\alpha^{\mathrm T}\alpha=1$ 时，$A$ 是不可逆矩阵。`, src: "教材 复习题1 第4(12)题（p54）", hint: R`① $\alpha^{\mathrm T}\alpha$ 是数，$A^2=E-(2-\alpha^{\mathrm T}\alpha)\alpha\alpha^{\mathrm T}$；② 算 $A\alpha$。`, ans: R`① $A^2=A\Leftrightarrow(1-\alpha^{\mathrm T}\alpha)\alpha\alpha^{\mathrm T}=O\Leftrightarrow\alpha^{\mathrm T}\alpha=1$（$\alpha\alpha^{\mathrm T}\neq O$）；② $A\alpha=\alpha-\alpha(\alpha^{\mathrm T}\alpha)=0$，$Ax=0$ 有非零解，$|A|=0$`, go: "1.6:t8" }
     ]
   });
 })();
