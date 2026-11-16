@@ -317,6 +317,8 @@ span.wr { color: var(--hl-w); background: var(--hl-w-bg); border-radius: 3px; pa
 .r-bad.on { border-color: var(--bad); color: var(--bad); background: var(--bad-soft); }
 .r-ok:hover, .r-ok.on { border-color: var(--ok); color: var(--ok); background: var(--ok-soft); }
 .r-mid:hover, .r-mid.on { border-color: var(--mid); color: var(--mid); background: var(--mid-soft); }
+.r-hint.on { border-color: var(--mid); color: var(--mid); background: var(--mid-soft); }
+.r-hint:hover { border-color: var(--mid); color: var(--mid); }
 .r-bad:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-soft); }
 .hist { display: flex; gap: 4px; font: 11.5px var(--f-mono); color: var(--muted); flex-wrap: wrap; }
 .hist i { font-style: normal; padding: 0 6px; border-radius: 4px; background: var(--paper); }
@@ -480,7 +482,7 @@ article.wr.panel { padding: 12px 16px; }
       <button class="btn" id="tocBtn" type="button" aria-expanded="false" aria-controls="toc">目录</button>
       <a class="btn" id="srBtn" href="#search">搜索</a>
       <a class="btn" id="wrBtn" href="#wrong">错题</a>
-      <a class="btn" id="tdBtn" href="#today">今日<span class="dot" id="dueDot" hidden></span></a>
+      <a class="btn" id="tdBtn" href="#today">重做<span class="dot" id="dueDot" hidden></span></a>
       <a class="btn" id="rvBtn" href="#review">复习</a>
       <button class="btn" id="recBtn" type="button">记录</button>
     </div>
@@ -496,7 +498,7 @@ article.wr.panel { padding: 12px 16px; }
 <div class="sheet-wrap" id="recWrap" hidden>
   <section class="sheet panel" role="dialog" aria-modal="true" aria-labelledby="recTitle">
     <h2 id="recTitle">学习记录</h2>
-    <p class="note" style="margin:0">题型卡的 ✓ ✗、△ 重点和复习安排只存在这台设备的这个浏览器里。复制下面的文字存进学习仓库或发给克，就算备份；换设备时粘贴导入。</p>
+    <p class="note" style="margin:0">题型卡的 ✗ / 提示、△ 重点和重做安排只存在这台设备的这个浏览器里。复制下面的文字存进学习仓库或发给克，就算备份；换设备时粘贴导入。</p>
     <label class="sub" for="recOut">当前记录</label>
     <div class="syncbox"><b>保存到 GitHub</b><span class="note">自评、☆ △、我的总结自动存进仓库的 records 分支，手机和电脑共用，也方便复盘。令牌只存在这台设备的浏览器里，怎么建见「说明」。</span><div class="acts"><input id="syncTok" type="password" placeholder="GitHub 令牌" autocomplete="off" style="flex:1;min-width:0"><button class="btn primary" id="syncGo" type="button">保存并同步</button></div><span class="msg" id="syncMsg" role="status"></span></div>
     <textarea id="recOut" readonly></textarea>
@@ -577,30 +579,27 @@ function toggleStar(k) { setStar(k, !store.stars[k]); }
 function ymd(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 function today() { return ymd(new Date()); }
 function addDays(n) { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); }
-const SYM = { ok: "✓", mid: "△", bad: "✗" };
+const SYM = { ok: "✓", mid: "△", bad: "✗", hint: "提示" };
 const INTERVALS = [1, 3, 7, 21];
 const DAY_CAP = 20; // 「今日」一天最多做多少条（三科合计 50：高数 20、线代 15、C 语言 15，JC-0035），超出的摊到后面几天
 const EXAM_LAST = "2027-01-08"; // 期末前最后一天：到期日不越过它（JC-0035）
 const FINAL_REVIEW = "2027-01-04"; // 毕业的条目在这天回来做考前总复习
 const DO_MIN = 5; // 做完模式默认计时（分钟）
-/* 间隔复习（2026-10-30 起和自评打通）：store.srs[键] = { box, due, last, lastWrong, t }；撤销后留 { del: 1 }
-   - 第一次 ✓（读的时候）只算见过：排到明天闭卷复查
-   - 到期那天再 ✓：往后挪一档，3 → 7 → 21 天
-   - ✗：今天再出一次；同一天先 ✗ 后 ✓ 只算重学对，明天再查
-   - 没到期或今天已经评过的 ✓：只记结果，不改安排 */
+const REDO = [3, 7]; // JC-0054：✗ 或「提示」后第 3 天重做一次，再过 7 天（第 10 天）重做一次；两次都自己做出就清掉
+/* 错题重做（2026-11-16 起，JC-0054，取代 1/3/7/21 天间隔复习）：store.srs[键] = { box, due, last, lastWrong, t }
+   - 标 ✗ 或「提示」：box 0，第 3 天到期
+   - 到期那天重做「自己做出」：box 1，再过 7 天到期；第二次也自己做出 → 清掉（{ del: 1, cleared }）
+   - 重做没做出或看了提示：回到 box 0，3 天后再来
+   - 没到期时点「自己做出」：只记结果，不改安排 */
 function srsOf(k) { const s = store.srs[k]; return s && !s.del && s.due ? s : null; }
 function srsNewer(n, o) { if (!o) return true; if (n.t && o.t && n.t !== o.t) return n.t > o.t; return (n.last || "") > (o.last || ""); }
 function srsGrade(k, ok) {
   const t = today(), s = srsOf(k);
   let n;
-  if (!ok) n = { box: 0, due: t, last: t, lastWrong: t };
-  else if (!s) n = { box: 0, due: addDays(1), last: t };
-  else if (s.lastWrong === t) n = { box: 0, due: addDays(1), last: t, lastWrong: t };
-  else if (s.due <= t && s.last !== t) { const b = (s.box || 0) + 1; n = { box: b, due: addDays(INTERVALS[Math.min(b, INTERVALS.length - 1)]), last: t };
-    /* 3、7、21 天各对一次（box 到 4）就毕业：移出日常队列，考前总复习再回来（JC-0035） */
-    if (b >= INTERVALS.length) { n.grad = 1; n.due = t < FINAL_REVIEW ? FINAL_REVIEW : addDays(INTERVALS[INTERVALS.length - 1]); } }
+  if (!ok) n = { box: 0, due: addDays(REDO[0]), last: t, lastWrong: t };
+  else if (s && s.due <= t && s.last !== t) { const b = (s.box || 0) + 1; n = b >= REDO.length ? { del: 1, cleared: t, last: t } : { box: b, due: addDays(REDO[b]), last: t, lastWrong: s.lastWrong }; }
   else return false;
-  if (n.due > EXAM_LAST && t < EXAM_LAST) n.due = EXAM_LAST;
+  if (n.due && n.due > EXAM_LAST && t < EXAM_LAST) n.due = EXAM_LAST;
   n.t = Date.now(); store.srs[k] = n; return true;
 }
 /* 撤销自评时把复习安排一起退回去（本页打开期间有效） */
@@ -608,17 +607,7 @@ const srsUndo = {};
 function srsPush(k, ok) { const prev = store.srs[k] ? Object.assign({}, store.srs[k]) : null; const ch = srsGrade(k, ok); (srsUndo[k] = srsUndo[k] || []).push(ch ? { p: prev } : null); }
 function srsPop(k) { const st = srsUndo[k], x = st && st.pop(); if (!x) return; store.srs[k] = Object.assign(x.p ? Object.assign({}, x.p) : { del: 1, last: today() }, { t: Date.now() }); }
 /* 旧记录补排：2026-10-30 之前的自评没有进间隔复习。有自评、没有安排的条目今天全部到期（「今日」一天最多 30 条，顺延） */
-function migrateSrs() {
-  let n = 0;
-  for (const k in store.marks) {
-    if (store.srs[k]) continue;
-    const l = lastMark(k); if (!l) continue;
-    store.srs[k] = l.r === "bad" ? { box: 0, due: today(), last: l.d, lastWrong: l.d, t: 1 } : { box: 0, due: today(), last: l.d, t: 1 };
-    n++;
-  }
-  if (n) { rawSave(); schedulePush(); }
-  return n;
-}
+function migrateSrs() { return seedWrongRedo(); } /* JC-0054：不再把旧自评补排进复习，只给错题区的题排第一次重做 */
 /* 积压摊开（JC-0035）：今天到期超过 DAY_CAP 的，按「错过的、☆ 的、到期早的」先留今天，其余摊到后面几天（每天最多 DAY_CAP，最多 7 天，不越过 EXAM_LAST）。一天只摊一次 */
 function spreadBacklog() {
   const t = today(); store.ui = store.ui || {};
@@ -643,10 +632,13 @@ function interleave(list) {
   return out;
 }
 function statusOf(key) {
+  const sr = srsOf(key), raw = store.srs[key];
+  if (sr) return { cls: "s-bad", text: `待重做 ${(sr.box || 0) + 1}/2 · ${sr.due.slice(5)}` };
+  if (raw && raw.cleared) return { cls: "s-learned", text: "已清掉" };
   const h = (store.marks[key] || []).filter(x => x.r !== "mid");
-  if (!h.length) return { cls: "", text: "未做" };
-  const a = h[h.length - 1], b = h[h.length - 2];
-  const sr = srsOf(key); if (a.r === "ok" && sr && sr.box >= 1) return { cls: "s-learned", text: "已学会" };
+  if (!h.length) return { cls: "", text: "未标" };
+  const a = h[h.length - 1];
+  if (a.r === "ok") return { cls: "", text: "未标" };
   return { cls: "s-" + a.r, text: SYM[a.r] + " " + a.d.slice(5) };
 }
 function qa(s) { return esc(s).replace(/"/g, "&quot;"); }
@@ -673,7 +665,7 @@ function isKey(k) { return !!store.stars[k + "!"]; }
 function rateInner(k) {
   const st = statusOf(k), star = !!store.stars[k];
   const hist = (store.marks[k] || []).filter(m => m.r !== "mid").slice(-3).map(m => `<i>${SYM[m.r]} ${m.d.slice(5)}</i>`).join("");
-  return `<button class="star${star ? " on" : ""}" type="button" data-act="star" aria-pressed="${star}" title="标为不熟（★）">${star ? "★" : "☆"}</button><span class="status ${st.cls}" data-sk="${qa(k)}">${esc(st.text)}</span><span class="rate"><span class="lab">自评</span><button class="rbtn r-ok${curR(k) === "ok" ? " on" : ""}" type="button" data-r="ok" title="${curR(k) === "ok" ? "今天已评 ✓，再点一次取消" : "独立做对"}">✓</button><button class="rbtn r-bad${curR(k) === "bad" ? " on" : ""}" type="button" data-r="bad" title="${curR(k) === "bad" ? "今天已评 ✗，再点一次取消" : "不会或看了答案"}">✗</button><button class="rbtn nbtn" type="button" data-act="note" title="写下你自己的总结">${noteOf(k) ? "✎ 总结 ●" : "✎ 总结"}</button><button class="rbtn r-mid${isKey(k) ? " on" : ""}" type="button" data-act="key" aria-pressed="${isKey(k)}" title="重点记录的内容：点一下标记，再点取消">△</button></span><span class="hist">${hist}</span>`;
+  return `<button class="star${star ? " on" : ""}" type="button" data-act="star" aria-pressed="${star}" title="标为不熟（★）">${star ? "★" : "☆"}</button><span class="status ${st.cls}" data-sk="${qa(k)}">${esc(st.text)}</span><span class="rate"><span class="lab">标记</span><button class="rbtn r-bad${curR(k) === "bad" ? " on" : ""}" type="button" data-r="bad" title="${curR(k) === "bad" ? "今天已标 ✗，再点一次取消" : "没做出，或看了讲解、答案才会：第 3 天、第 10 天各重做一次"}">✗</button><button class="rbtn r-hint${curR(k) === "hint" ? " on" : ""}" type="button" data-r="hint" title="${curR(k) === "hint" ? "今天已标「提示」，再点一次取消" : "看了提示才做出：同样排两次重做"}">提示</button>${srsOf(k) ? `<button class="rbtn r-ok${curR(k) === "ok" ? " on" : ""}" type="button" data-r="ok" title="${curR(k) === "ok" ? "今天已记「重做做出」，再点一次取消" : "到期那天闭卷重做、自己做出才算"}">✓ 重做做出</button>` : ""}<button class="rbtn nbtn" type="button" data-act="note" title="写下你自己的总结">${noteOf(k) ? "✎ 总结 ●" : "✎ 总结"}</button><button class="rbtn r-mid${isKey(k) ? " on" : ""}" type="button" data-act="key" aria-pressed="${isKey(k)}" title="重点记录的内容：点一下标记，再点取消">△</button></span><span class="hist">${hist}</span>`;
 }
 function rateBox(k) { return `<div class="rate-box" data-k="${qa(k)}">${rateInner(k)}</div>`; }
 function bindRate(root) {
@@ -700,7 +692,7 @@ function bindRate(root) {
       else if (b.dataset.r) {
         const h = (store.marks[k] = store.marks[k] || []);
         if (curR(k) === b.dataset.r) { srsPop(k); for (let i = h.length - 1; i >= 0; i--) if (h[i].r !== "mid") { const x = h.splice(i, 1)[0]; store.del = store.del || {}; store.del[k + "|" + mid(x)] = Date.now(); break; } if (!h.length) delete store.marks[k]; }
-        else { h.push({ d: today(), r: b.dataset.r, t: Date.now() }); if (h.length > 20) store.marks[k] = h.slice(-20); srsPush(k, b.dataset.r === "ok"); }
+        else { h.push({ d: today(), r: b.dataset.r, t: Date.now() }); if (h.length > 20) store.marks[k] = h.slice(-20); srsPush(k, b.dataset.r === "ok"); if (b.dataset.r === "ok" && !srsOf(k) && store.srs[k] && store.srs[k].cleared === today()) onCleared(); }
       }
       else return;
       save(); box.innerHTML = rateInner(k); onRated();
@@ -708,6 +700,7 @@ function bindRate(root) {
   });
   if (WRONG.length) paintWl(root);
 }
+function onCleared() { const el = document.createElement("div"); el.className = "msg"; el.textContent = "两次重做都自己做出，这条清掉了"; document.body.appendChild(el); setTimeout(() => el.remove(), 2500); }
 function onRated() {
   const el = $("#tally"); if (el && curSec) el.innerHTML = tallyHtml(curSec);
   updateDot();
@@ -766,28 +759,26 @@ function itemLabel(k) {
   const q = k.match(/^(.+?)\/k(\d+)$/); return q ? q[1] + " 要点 " + q[2] : k;
 }
 function reviewMd() {
-  const t = today(), days = []; for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); days.push(ymd(d)); }
-  const byDay = {}; days.forEach(d => byDay[d] = { ok: [], bad: [] });
-  for (const k in store.marks) for (const x of store.marks[k]) if (byDay[x.d] && (x.r === "ok" || x.r === "bad")) byDay[x.d][x.r].push(k);
+  const t = today(), tm = addDays(1), days = []; for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); days.push(ymd(d)); }
+  const byDay = {}; days.forEach(d => byDay[d] = { ok: [], hint: [], bad: [] });
+  for (const k in store.marks) for (const x of store.marks[k]) if (byDay[x.d] && byDay[x.d][x.r]) byDay[x.d][x.r].push(k);
   const lines = k => k.map(x => "- " + itemLabel(x));
-  const lastBad = [], keys = [], stars = [];
-  for (const k in store.marks) { const l = lastMark(k); if (l && l.r === "bad") lastBad.push(k); }
+  const keys = [], stars = [];
   for (const k in store.stars) { if (!store.stars[k]) continue; if (k.endsWith("!")) keys.push(k.slice(0, -1)); else stars.push(k); }
-  const due = Object.keys(store.srs).filter(k => srsOf(k) && srsOf(k).due <= t).sort();
+  const redo = d => todayQueue(d).map(it => `- ${itemLabel(it.key)}（第 ${(srsOf(it.key).box || 0) + 1} 次，到期 ${srsOf(it.key).due}）`);
+  const open = Object.keys(store.srs).filter(k => srsOf(k)).length;
   const notes = Object.keys(store.notes).filter(k => store.notes[k]).sort();
   const sec = (h, a) => `## ${h}（${a.length}）\n\n${a.length ? a.join("\n") : "（无）"}\n`;
   const td = byDay[t];
   return [
     "# 高数复盘记录", "",
-    "> 由知识网页自动生成，原始数据在 `state.json`。✓ 独立做对，✗ 不会或看了答案，☆ 不熟，△ 重点记录。", "",
-    `## 今天（${t}）`, "", `自评 ✓ ${td.ok.length}，✗ ${td.bad.length}`, "",
-    ...(td.bad.length ? ["**今天不会的**", "", ...lines(td.bad), ""] : []),
-    ...(td.ok.length ? ["**今天做对的**", "", ...lines(td.ok), ""] : []),
-    "## 最近 7 天", "", "| 日期 | ✓ | ✗ |", "|---|---|---|", ...days.map(d => `| ${d} | ${byDay[d].ok.length} | ${byDay[d].bad.length} |`), "",
-    sec("最近一次自评是 ✗ 的", lines(lastBad)),
+    "> 由知识网页自动生成，原始数据在 `state.json`。2026-11-16 起（JC-0054）只追错题：✗ 没做出或看讲解才会，「提示」看提示才做出，✓ 只在重做时记；每条 ✗ /「提示」第 3 天、第 10 天各重做一次，两次都自己做出就清掉。", "",
+    `## 今天（${t}）`, "", `新标 ✗ ${td.bad.length}，提示 ${td.hint.length}；重做做出 ${td.ok.length}；待重做共 ${open} 条`, "",
+    ...(td.bad.length + td.hint.length ? ["**今天新标的**", "", ...lines(td.bad.concat(td.hint)), ""] : []),
+    sec(`明天（${tm}）到期要重做的——克排进明天的滴答`, redo(tm)),
+    "## 最近 7 天", "", "| 日期 | ✗ | 提示 | 重做做出 |", "|---|---|---|---|", ...days.map(d => `| ${d} | ${byDay[d].bad.length} | ${byDay[d].hint.length} | ${byDay[d].ok.length} |`), "",
     sec("☆ 不熟", lines(stars)),
     sec("△ 重点记录", lines(keys)),
-    sec(`今天及之前到期的间隔复习（共 ${due.length} 条，「今日」已改为只过 ✗ 的，这里仅供参考；下面列前 40 条）`, due.slice(0, 40).map(k => `- ${itemLabel(k)}（到期 ${store.srs[k].due}）`)),
     sec("我的总结", notes.map(k => `- ${itemLabel(k)}：${store.notes[k].replace(/\n/g, " ")}`)),
     ""
   ].join("\n");
@@ -936,7 +927,7 @@ function renderHome() {
     <div class="intro">
       <div class="eyebrow">同济《高等数学》第八版上册 · 已生成 ${have} / ${total} 节</div>
       <h1>高等数学知识网页</h1>
-      <p>一章分成各小节，最后一页是章末考研难度提升。每节先是<strong>知识框架</strong>，一张图讲清知识点之间怎么连起来，然后分三栏：<strong>知识点</strong>、<strong>题型梳理</strong>、<strong>易错点</strong>。知识点、题型、易错点旁都有 <strong>☆</strong>（标为不熟）和 <strong>✓ △ ✗</strong> 自评。右上角的<strong>复习</strong>里有薄弱清单、速认模式、限时抽题和间隔复习；<strong>搜索</strong>能查全站。</p>
+      <p>一章分成各小节，最后一页是章末考研难度提升。每节先是<strong>知识框架</strong>，一张图讲清知识点之间怎么连起来，然后分三栏：<strong>知识点</strong>、<strong>题型梳理</strong>、<strong>易错点</strong>。知识点、题型、易错点旁都有 <strong>☆</strong>（标为不熟）和 <strong>✗ / 提示 / △</strong> 标记。右上角的<strong>复习</strong>里有薄弱清单、速认模式、限时抽题和间隔复习；<strong>搜索</strong>能查全站。</p>
     </div>
     ${todayBanner()}
     <div class="home-grid">${cards}</div>
@@ -945,10 +936,10 @@ function renderHome() {
       <ol>
         <li>课上认真听三样：老师讲的例题、强调的地方、你第一次见的内容。老师补充的题拍照发给科目项目，进错题区（标「师」）。</li>
         <li>其余时间打开本节「题型梳理」，开「做完模式」（标了层级的节默认只显示「期末必会」）。在 GoodNotes 里写完整过程，可以点「计时」，写完再点「对照答案」。</li>
-        <li>全对才点 ✓；看了答案、写错、卡住都点 ✗。看懂了不算 ✓，不熟就点 ☆。</li>
+        <li>不用一题题打 ✓：整节做完就算过了。没做出、看了讲解或答案才会的点 ✗，看了提示才做出的点「提示」；不熟就点 ☆。</li>
         <li>知识点栏开「线索自测」，先回忆条件和结论，再点开对照；易错点栏先做陷阱小题，再看为什么错。</li>
-        <li>自评 ✗ 的条目会进「今日」，答对一次就离开；✓ 的不再每天排复习。</li>
-        <li>有空就点右上角「今日」，过一遍不会的。</li>
+        <li>标了 ✗ /「提示」的条目第 3 天、第 10 天各重做一次，克每晚把到期的排进滴答；两次都自己做出就清掉。</li>
+        <li>滴答里排到「错题重做」时，点右上角「重做」做到期的；周六用「限时抽题」做 10 分钟周测。</li>
         <li>每章讲完：章末思维导图闭卷回忆一次，再做混合自测。</li>
       </ol>
     </div>`;
@@ -1203,9 +1194,9 @@ function ideaHtml(t) {
     <p class="key">${md(i.key)}</p>${i.how ? `<ol>${i.how.map(s => `<li>${md(s)}</li>`).join("")}</ol>` : ""}${i.refs && i.refs.length ? `<div class="refs"><div class="refs-h">辅导书怎么说</div>${i.refs.map(r => `<div class="ref"><span class="src">${esc(r.src)}</span>${md(r.text)}</div>`).join("")}</div>` : ""}</div></div></div>`;
 }
 function tallyHtml(d) {
-  const cnt = { ok: 0, mid: 0, bad: 0, none: 0 };
-  (d.types || []).forEach(t => { const k = d.id + "/" + t.id, m = lastMark(k); if (isKey(k)) cnt.mid++; if (!m) cnt.none++; else cnt[m.r]++; });
-  return `<span>✓ ${cnt.ok}</span><span>△ 重点 ${cnt.mid}</span><span>✗ ${cnt.bad}</span><span>未做 ${cnt.none}</span>`;
+  const cnt = { mid: 0, bad: 0, hint: 0, redo: 0 };
+  (d.types || []).forEach(t => { const k = d.id + "/" + t.id, m = lastMark(k); if (isKey(k)) cnt.mid++; if (m && m.d === today() && (m.r === "bad" || m.r === "hint")) cnt[m.r]++; if (srsOf(k)) cnt.redo++; });
+  return `<span>今天 ✗ ${cnt.bad}</span><span>提示 ${cnt.hint}</span><span>本节待重做 ${cnt.redo}</span><span>△ 重点 ${cnt.mid}</span>`;
 }
 /* 题型卡背面：点「看背面」才生成，没点开时页面里没有第一步、解答和易错 */
 function backHtml(t) {
@@ -1232,7 +1223,7 @@ function typesHtml(d) {
   return `<div class="toolbar"><div class="chips">${types.some(t => t.level) ? fbtn("final", "期末必会 " + types.filter(t => t.level === "期末").length) : ""}${fbtn("all", "全部")}${fbtn("todo", "还没掌握")}${types.some(t => t.tag === "研") ? fbtn("yan", "研") : ""}${(d.blocks || []).map(b => fbtn("b:" + b.id, b.name)).join("")}</div>
     ${toggle("coverIdea", "遮住通法", cover)}${toggle("doMode", "做完模式", doOn)}
     <div class="tally" id="tally">${tallyHtml(d)}</div></div>
-  ${doOn ? `<p class="note do-tip">做完模式：在 GoodNotes 里写完整过程（可以点「计时」），写完再点「对照答案」。全对才点 ✓，看了答案、写错、卡住都点 ✗。</p>` : ""}<div class="cards ${cover ? "cover-on" : ""}${doOn ? " do-on" : ""}" data-cover="coverIdea">${show.length ? show.map(t => {
+  ${doOn ? `<p class="note do-tip">做完模式：在 GoodNotes 里写完整过程（可以点「计时」），写完再点「对照答案」。不用打 ✓：没做出点 ✗，看了提示才做出点「提示」。</p>` : ""}<div class="cards ${cover ? "cover-on" : ""}${doOn ? " do-on" : ""}" data-cover="coverIdea">${show.length ? show.map(t => {
     const i = types.indexOf(t) + 1, k = key(t);
     return `<article class="tcard panel" data-key="${k}">
       <div class="tc-head"><span class="tc-no">题型 ${i}</span><span class="tc-name">${nameHtml(t.name)}</span>${t.level ? `<span class="badge-t lv-${t.level === "期末" ? "f" : "u"}">${esc(t.level)}</span>` : ""}${t.block && d.blocks ? `<span class="badge-b">${esc((d.blocks.find(b => b.id === t.block) || {}).name || "")}</span>` : ""}${t.tag === "研" ? `<span class="badge-t yan">研</span>` : ""}</div>
@@ -1301,7 +1292,7 @@ function renderSpaced() {
   const opt = Object.assign({ scope: "all", kinds: ["pt", "rel", "type", "pit"], size: 20 }, store.ui.rv || {});
   const secs = Object.keys(KB.sections);
   const chip = (attr, v, label, on) => `<button class="chip" type="button" data-${attr}="${v}" aria-pressed="${on}">${label}</button>`;
-  $("#main").innerHTML = `<div class="eyebrow">复习 · 间隔复习</div><h1>间隔复习</h1>
+  $("#main").innerHTML = `<div class="eyebrow">复习 · 自选复习</div><h1>自选复习</h1>
     <div class="stats" style="margin-bottom:16px"><span><b>${seenDue}</b>到期</span><span><b>${fresh}</b>没学过</span><span><b>${learned}</b>还没到期</span></div>
     <div class="rv-setup panel">
       <div class="line"><span>范围</span><div class="chips">${chip("scope", "all", "全部已生成", opt.scope === "all")}${secs.map(s => chip("scope", s, s + " " + KB.sections[s].title, opt.scope === s)).join("")}</div></div>
@@ -1309,7 +1300,7 @@ function renderSpaced() {
       <div class="line"><span>一轮</span><div class="chips">${[10, 20, 40].map(n => chip("size", n, n + " 条", opt.size === n)).join("")}</div></div>
       <div class="line"><button class="btn primary" id="rvStart" type="button">开始</button><span class="note">先抽到期的，再补没学过的，顺序打乱。答错的会在本轮再出现，直到答对一次。</span></div>
     </div>
-    <p class="note" style="max-width:760px;margin-top:16px">第一次答对：明天再查一次；到期再答对，间隔往后挪到 3、7、21 天。答错过：今天再来，重学对了明天再查。节内的 ✓ ✗ 也按这个规则排。这个安排来自"连续重学"（Rawson、Dunlosky 等的研究：先检索到全部答对一次，再隔天重学几轮）。</p>`;
+    <p class="note" style="max-width:760px;margin-top:16px">自选一轮复习，只用来自测，不排每天的任务。没做出或看了提示的条目会排进错题重做（第 3 天、第 10 天）。</p>`;
   $$("[data-scope]").forEach(b => b.addEventListener("click", () => { opt.scope = b.dataset.scope; store.ui.rv = opt; save(); renderSpaced(); }));
   $$("[data-kind]").forEach(b => b.addEventListener("click", () => { const k = b.dataset.kind; opt.kinds = opt.kinds.includes(k) ? opt.kinds.filter(x => x !== k) : opt.kinds.concat(k); if (!opt.kinds.length) opt.kinds = [k]; store.ui.rv = opt; save(); renderSpaced(); }));
   $$("[data-size]").forEach(b => b.addEventListener("click", () => { opt.size = +b.dataset.size; store.ui.rv = opt; save(); renderSpaced(); }));
@@ -1328,6 +1319,7 @@ function startReview(opt) {
 function runReview(pick, from) { rv = { queue: pick, total: pick.length, done: 0, wrong: new Set(), firstOk: 0, relearn: 0, from: from || "spaced" }; showReviewCard(); }
 function promptHtml(it) {
   const o = it.obj;
+  if (it.kind === "wr") { const d = o.data || {}; return `<div class="rv-q"><b>${md(d.title || o.source || "")}</b></div>${d.stem ? `<div>${md(d.stem).replace(/\n/g, "<br>")}</div>` : ""}<div class="note">在 GoodNotes 里闭卷重做，写完整过程，再看错因和正解。</div>`; }
   if (it.kind === "pt") return `<div class="rv-q"><b>${md(o.name)}</b></div><div>${o.quiz ? md(o.quiz) : "说出它的定义或内容，条件写全。"}</div>`;
   if (it.kind === "rel") return `<div class="rv-q">${md(o.q)}</div>`;
   if (it.kind === "type") return `<div class="rv-q"><b>${md(o.name)}</b></div><div>${md(o.example.q)}</div><div class="note">说出这类题的通法和本题第一步（不用算完）。</div>`;
@@ -1353,19 +1345,20 @@ function showReviewCard() {
       ${promptHtml(it)}
       <div class="rv-acts" id="rvShowRow"><button class="btn primary" id="rvShow" type="button">显示答案</button><span class="note">先说出来或写下来，再看</span></div>
       <div class="rv-ans" id="rvAns" hidden>${answerHtml(it)}
-        <div class="rv-acts"><button class="rbtn r-ok" id="rvOk" type="button">答对了</button><button class="rbtn r-bad" id="rvBad" type="button">没答对</button><a class="btn" href="#${esc(it.sec.id)}" style="margin-left:auto">去这一节</a></div>
+        <div class="rv-acts"><button class="rbtn r-ok" id="rvOk" type="button">自己做出</button><button class="rbtn r-hint" id="rvHint" type="button">看提示做出</button><button class="rbtn r-bad" id="rvBad" type="button">没做出</button><a class="btn" href="#${esc(it.sec.id)}" style="margin-left:auto">去这一节</a></div>
       </div>
     </div>
     <p style="margin-top:14px"><button class="btn" id="rvQuit" type="button">结束本轮</button></p>`;
   typeset($("#main"));
   $("#rvShow").addEventListener("click", () => { $("#rvAns").hidden = false; $("#rvShowRow").hidden = true; typeset($("#rvAns")); });
-  $("#rvOk").addEventListener("click", () => gradeReview(true));
-  $("#rvBad").addEventListener("click", () => gradeReview(false));
+  $("#rvOk").addEventListener("click", () => gradeReview("ok"));
+  $("#rvHint").addEventListener("click", () => gradeReview("hint"));
+  $("#rvBad").addEventListener("click", () => gradeReview("bad"));
   $("#rvQuit").addEventListener("click", finishReview);
 }
-function gradeReview(ok) {
-  const it = rv.queue.shift(); rv.done++;
-  const h = (store.marks[it.key] = store.marks[it.key] || []); h.push({ d: today(), r: ok ? "ok" : "bad", t: Date.now() }); if (h.length > 20) store.marks[it.key] = h.slice(-20);
+function gradeReview(r) {
+  const ok = r === "ok", it = rv.queue.shift(); rv.done++;
+  const h = (store.marks[it.key] = store.marks[it.key] || []); h.push({ d: today(), r, t: Date.now() }); if (h.length > 20) store.marks[it.key] = h.slice(-20);
   srsPush(it.key, ok);
   if (ok) { if (rv.wrong.has(it.key)) rv.relearn++; else rv.firstOk++; }
   else { rv.wrong.add(it.key); rv.queue.splice(Math.min(3, rv.queue.length), 0, it); }
@@ -1375,19 +1368,30 @@ function finishReview() {
   const left = rv ? rv.queue.length : 0, from = rv ? rv.from : "spaced";
   $("#main").innerHTML = `<div class="eyebrow">复习</div><h1>本轮结束</h1>
     <div class="stats"><span><b>${rv ? rv.firstOk : 0}</b>一次答对</span><span><b>${rv ? rv.relearn : 0}</b>答错后重学对</span><span><b>${left}</b>没做完</span></div>
-    <p>答对的条目自动往后排：第一次见的明天再查，到期答对的挪到 3、7、21 天；答错过的明天再出现。没做完的条目没有记录，下次还会排到。</p>
-    <p><a class="btn primary" href="#${from === "today" ? "today" : "spaced"}" id="rvAgain">${from === "today" ? "回今日" : "回间隔复习首页"}</a> <a class="btn" href="#review">复习中心</a></p>`;
+    <p>第一次重做自己做出：再过 7 天重做第二次；第二次也自己做出就清掉。看了提示或没做出：3 天后再来。没做完的下次还在。</p>
+    <p><a class="btn primary" href="#${from === "today" ? "today" : "spaced"}" id="rvAgain">${from === "today" ? "回错题重做" : "回间隔复习首页"}</a> <a class="btn" href="#review">复习中心</a></p>`;
   rv = null; updateDot();
   $("#rvAgain").addEventListener("click", e => { e.preventDefault(); if (from === "today") renderToday(); else renderSpaced(); });
 }
 
-/* ===== 11a. 今日：每天 23:00 回顾时只点这里 ===== */
-function todayQueue() {
-  const t = today();
-  /* 2026-11-05 恆定（JC-0038）：「今日」只过不会的——最近一次自评是 ✗ 的条目；答对一次就离开。不再按间隔排每天复习 */
-  const its = allItems(true).filter(it => { const l = lastMark(it.key); return l && l.r === "bad"; });
-  const lastT = it => { const l = lastMark(it.key); return l.t || Date.parse(l.d) || 0; };
-  return interleave(its.sort((a, b) => secRank(a.sec) - secRank(b.sec) || lastT(b) - lastT(a)));
+/* ===== 11a. 错题重做（JC-0054）：标过 ✗ /「提示」的条目和错题区的错题，第 3 天、第 10 天各重做一次 ===== */
+function wrongItem(w) { return { key: "w/" + w.id, sec: WSEC, kind: "wr", obj: w }; }
+function todayQueue(day) {
+  const t = day || today();
+  const its = allItems(true).concat(WRONG.map(wrongItem)).filter(it => { const s = srsOf(it.key); return s && s.due <= t; });
+  return interleave(its.sort((a, b) => srsOf(a.key).due < srsOf(b.key).due ? -1 : srsOf(a.key).due > srsOf(b.key).due ? 1 : secRank(a.sec) - secRank(b.sec)));
+}
+/* 错题区的题第一次出现：按收录日期排第一次重做（收录后第 3 天） */
+function seedWrongRedo() {
+  let n = 0, late = 0;
+  for (const w of WRONG) {
+    const k = "w/" + w.id; if (store.srs[k]) continue;
+    const c = (w.created || "").slice(0, 10) || today(), d = new Date(c + "T00:00:00"); d.setDate(d.getDate() + REDO[0]);
+    let due = ymd(d); if (due <= today()) { due = addDays(1 + Math.floor(late / 3)); late++; } /* 以前收录的错题：从明天起每天 3 道摊开 */
+    store.srs[k] = { box: 0, due, last: c, lastWrong: c, t: 1 }; n++;
+  }
+  if (n) rawSave();
+  return n;
 }
 /* 最近在学：最近一次自评所在的小节 */
 function recentSec() {
@@ -1399,43 +1403,41 @@ function recentSec() {
   return best ? KB.sections[best] : null;
 }
 function todayBanner() {
-  const n = todayQueue().length, m = Math.min(n, DAY_CAP);
-  return `<a class="today-bar panel" href="#today"><b>今日</b><span>${n ? `到期 ${n} 条，今天做 ${m} 条` : "今天没有到期的条目"}</span><span class="go">进入 →</span></a>`;
+  const n = todayQueue().length;
+  return `<a class="today-bar panel" href="#today"><b>错题重做</b><span>${n ? `今天到期 ${n} 条` : "今天没有要重做的"}</span><span class="go">进入 →</span></a>`;
 }
 function renderToday() {
   curSec = null;
-  const q = todayQueue(), n = q.length, m = n, t = today();
-  const wk = WRONG.filter(w => !weekMark(w.id)).length;
+  const q = todayQueue(), n = q.length, t = today();
   const rs = recentSec();
   const sched = {}; Object.keys(store.srs).forEach(k => { const s = srsOf(k); if (s && s.due > t) sched[s.due] = (sched[s.due] || 0) + 1; });
   const next = Object.keys(sched).sort().slice(0, 5).map(d => `${d.slice(5)} ${sched[d]} 条`).join("　");
-  $("#main").innerHTML = `<div class="eyebrow">只过不会的：最近一次自评是 ✗ 的</div><h1>今日</h1>
-    <div class="stats" style="margin-bottom:16px"><span><b>${n}</b>不会的</span><span><b>${wk}</b>本周没重做的错题</span></div>
+  $("#main").innerHTML = `<div class="eyebrow">只追错题：第 3 天、第 10 天各重做一次</div><h1>错题重做</h1>
+    <div class="stats" style="margin-bottom:16px"><span><b>${n}</b>今天到期</span><span><b>${Object.keys(sched).reduce((a, d) => a + sched[d], 0)}</b>以后到期</span></div>
     <div class="panel today-main">
-      ${n ? `<p>先闭卷说出来或写下来，再点「显示答案」。答错的本轮会再出现，直到答对一次。答对一次就从这里消失。</p><button class="btn primary" id="tdStart" type="button">开始今天的复习（${m} 条）</button>` : `<p>今天没有到期的条目。新学的内容自评以后，会自动排进来。</p>`}
-      
+      ${n ? `<p>先在 GoodNotes 里闭卷重做，写完整过程，再点「显示答案」，按实际情况点「自己做出 / 看提示做出 / 没做出」。没做出的本轮会再出现。</p><button class="btn primary" id="tdStart" type="button">开始重做（${n} 条）</button>` : `<p>今天没有到期的错题。</p>`}
+      ${next ? `<p class="note" style="margin-top:10px">接下来：${next}</p>` : ""}
     </div>
     <div class="home-grid" style="margin-top:16px">
-      ${rs ? `<a class="ch-card panel" href="#${rs.id}" id="tdDo"><div class="eyebrow"><span>最近在学</span><span>${esc(rs.id)}</span></div><h3>${esc(rs.title)}</h3><div class="note">打开本节题型卡的做完模式：在 GoodNotes 里写完整过程，再对照答案。</div></a>` : ""}
-      <a class="ch-card panel" href="#wrong" id="tdWr"><div class="eyebrow"><span>周末重做</span><span>${wk} 题</span></div><h3>错题区</h3><div class="note">只看本周还没重做的错题。</div></a>
-      <a class="ch-card panel" href="#review"><div class="eyebrow"><span>按需要</span><span></span></div><h3>复习中心</h3><div class="note">薄弱清单、速认、限时抽题、自选范围的间隔复习。</div></a>
+      ${rs ? `<a class="ch-card panel" href="#${rs.id}" id="tdDo"><div class="eyebrow"><span>最近在学</span><span>${esc(rs.id)}</span></div><h3>${esc(rs.title)}</h3><div class="note">打开本节的做完模式：在 GoodNotes 里写完整过程，再对照答案；没做出的标 ✗，看提示才做出的标「提示」。</div></a>` : ""}
+      <a class="ch-card panel" href="#wrong"><div class="eyebrow"><span>错题</span><span>${WRONG.length} 题</span></div><h3>错题区</h3><div class="note">作业、小测里做错的题。</div></a>
+      <a class="ch-card panel" href="#sample"><div class="eyebrow"><span>周六</span><span>10 分钟</span></div><h3>周测</h3><div class="note">限时抽 8 题，结果写进学习日志。</div></a>
     </div>
-    <p class="note" style="max-width:46em;margin-top:16px">✓ 的标准：闭卷、写出来、对了。这里只放最近一次是 ✗ 的条目，不再每天排间隔复习；想复习做对过的，用「复习中心」。</p>`;
+    <p class="note" style="max-width:46em;margin-top:16px">做完一节不用一题题打 ✓：整节做完就算过了，只标没做出的 ✗ 和看提示才做出的「提示」。克每晚复盘时把第二天到期的重做排进滴答。</p>`;
   const st = $("#tdStart"); if (st) st.addEventListener("click", () => runReview(q, "today"));
   const dd = $("#tdDo"); if (dd) dd.addEventListener("click", () => { curTab = "types"; store.ui.tab = "types"; store.ui.doMode = true; save(); });
-  const wr = $("#tdWr"); if (wr) wr.addEventListener("click", () => { wrOpt.st = "week"; });
 }
 
 /* ===== 11b. 复习中心：复习首页、薄弱清单、速认、限时抽题、搜索 ===== */
 const REVIEW_KINDS = ["pt", "rel", "type", "pit"];
-const WHY = { star: "★ 不熟", bad: "✗ 不会", mid: "△ 重点", rv: "复习答错" };
+const WHY = { star: "★ 不熟", bad: "✗ / 提示 待重做", mid: "△ 重点", rv: "重做没做出过" };
 function secRank(d) { const m = String(d.id).match(/^(\d+)\.(\d+)$/); if (m) return +m[1] * 100 + +m[2]; const e = String(d.id).match(/^c(\d+)-end$/); return e ? +e[1] * 100 + 99 : 9999; }
 function secById(id) { return KB.sections[id] || Object.values(KB.chapterEnds).find(x => x.id === id); }
 function secLabel(d) { if (d.id === "wrong") return "错题区"; return String(d.id).startsWith("c") ? "第" + CN[d.chapter] + "章末 · 考研难度提升" : d.id + " " + d.title; }
 function reasons(key) {
   const r = []; if (store.stars[key]) r.push("star");
-  const l = lastMark(key); if (l && l.r === "bad") r.push("bad"); if (isKey(key)) r.push("mid");
-  const s = srsOf(key); if (s && s.lastWrong) r.push("rv");
+  const s = srsOf(key); if (s) r.push("bad"); if (isKey(key)) r.push("mid");
+  if (s && s.box === 0 && s.last !== s.lastWrong) r.push("rv");
   return r;
 }
 function weakItems() {
@@ -1454,23 +1456,23 @@ function renderHub() {
   const w = weakItems().length, due = dueSeenCount();
   const card = (href, tag, title, desc, extra, id) => `<a class="ch-card panel" href="${href}"${id ? ` id="${id}"` : ""}><div class="eyebrow"><span>${tag}</span><span>${extra || ""}</span></div><h3>${title}</h3><div class="note">${desc}</div></a>`;
   $("#main").innerHTML = `<div class="eyebrow">综合复习</div><h1>复习</h1>
-    <p class="intro">「今日」只放不会的（最近一次 ✗）。其余按需要用：薄弱清单看自己标过的，速认练「认出题型、说出第一步」，题型卡的做完模式练「算对」。</p>
+    <p class="intro">「重做」只放到期的错题（标过 ✗ /「提示」的条目和错题区的题，第 3、10 天各一次）。其余按需要用：薄弱清单看自己标过的，速认练「认出题型、说出第一步」，题型卡的做完模式练「算对」。</p>
     <div class="home-grid">
-      ${card("#today", "随时", "今日", "只过不会的：最近一次自评是 ✗ 的条目，答对就离开。", due + " 条")}
-      ${card("#weak", "随时看", "薄弱清单", "汇总标了 ☆、△ 重点、自评 ✗、间隔复习答错的条目，一条一行，点开才看详情。", w + " 条")}
+      ${card("#today", "滴答里排", "错题重做", "到期的错题：闭卷重做，自己做出两次就清掉。", due + " 条")}
+      ${card("#weak", "随时看", "薄弱清单", "汇总标了 ☆、△ 重点和待重做的条目，一条一行，点开才看详情。", w + " 条")}
       ${card("#quick", "综合复习", "速认模式", "每张题型只显示「看到」和例题。先在心里说出方法和第一步，再点核对。", "")}
-      ${card("#sample", "周复盘", "限时抽题", "从题型、易错点、混合题里随机抽，每题限时，时间到自动翻出答案。", "")}
+      ${card("#sample", "周六周测", "限时抽题", "10 分钟 8 题，从错题、☆ 不熟和期末必会里抽，按四档记结果。", "")}
       ${card("#wrong", "错题", "错题区", "你做错的题，按错因和章节整理，先自己重做，再看正解。", WRONG.length + " 题")}
-      ${card("#spaced", "自选范围", "间隔复习", "按章节、内容挑一轮复习；每天的到期条目在「今日」里做。", due + " 到期")}
+      ${card("#spaced", "自选范围", "自选复习", "按章节、内容挑一轮自测；到期的错题在「重做」里做。", "")}
       ${card("#c1-end", "考前一周", "闭卷思维导图", "章末页的导图会先模糊小节下的内容，先回忆再点开，不熟的点 ☆。", "", "mmGo")}
     </div>
     <div class="howto panel"><h3>怎么安排</h3>
       <table class="tbl"><tr><th>时间</th><th>做什么</th><th>用时</th></tr>
-      <tr><td>有空时</td><td>点「今日」，过一遍最近一次是 ✗ 的条目</td><td>看条数</td></tr>
-      <tr><td>周日周复盘</td><td>薄弱清单过一遍，限时抽题 10 张</td><td>30 分钟</td></tr>
+      <tr><td>滴答排到时</td><td>「重做」：到期的错题闭卷重做</td><td>任务上写的分钟数</td></tr>
+      <tr><td>周六周测</td><td>限时抽题：10 分钟 8 题，结果写学习日志</td><td>10 分钟</td></tr>
       <tr><td>每章学完</td><td>章末混合自测</td><td>60 分钟</td></tr>
       <tr><td>考前两周</td><td>每章：闭卷思维导图 → 速认模式 → 薄弱清单</td><td>每章约 1 小时</td></tr></table>
-      <p class="note" style="margin-top:10px">薄弱清单的规则：自评 ✓ 后，✗ 的条目自动离开；☆ 和 △ 重点要你自己点掉；复习答错的条目在下次一次答对后离开。</p></div>`;
+      <p class="note" style="margin-top:10px">薄弱清单的规则：✗ /「提示」的条目两次重做都自己做出后离开；☆ 和 △ 重点要你自己点掉。</p></div>`;
   $("#mmGo").addEventListener("click", () => { store.ui.mmClosed = true; save(); });
 }
 
@@ -1489,10 +1491,10 @@ function renderWeak() {
   });
   if (cur) html += "</section>";
   $("#main").innerHTML = `<div class="eyebrow">复习 · 薄弱清单</div><h1>薄弱清单</h1>
-    <p class="note" style="max-width:46em">来源：你标的 ☆、△ 重点、自评最近一次是 ✗、间隔复习答错的条目。重新自评 ✓ 后 ✗ 会自动离开；☆ 和 △ 要自己点掉。</p>
+    <p class="note" style="max-width:46em">来源：你标的 ☆、△ 重点和待重做（✗ /「提示」）的条目。两次重做都自己做出后自动离开；☆ 和 △ 要自己点掉。</p>
     <div class="toolbar"><div class="chips">${["all", "star", "bad", "mid", "rv"].map(w => chipBtn("why", w, (w === "all" ? "全部" : WHY[w]) + " " + cnt(w), wkOpt.why === w)).join("")}</div></div>
     <div class="toolbar"><div class="chips">${Object.keys(kinds).map(k => chipBtn("kind", k, kinds[k], wkOpt.kind === k)).join("")}</div><span class="tally">${items.length} 条</span></div>
-    ${html || `<div class="empty panel"><h2>这里是空的</h2><p>没有符合条件的条目。在知识点、题型、易错点旁点 ☆ 或 △，或自评 ✗，就会出现在这里。</p></div>`}`;
+    ${html || `<div class="empty panel"><h2>这里是空的</h2><p>没有符合条件的条目。在知识点、题型、易错点旁点 ☆ 或 △，或标 ✗ /「提示」，就会出现在这里。</p></div>`}`;
   $$("[data-why]").forEach(b => b.addEventListener("click", () => { wkOpt.why = b.dataset.why; renderWeak(); }));
   $$("[data-kind]").forEach(b => b.addEventListener("click", () => { wkOpt.kind = b.dataset.kind; renderWeak(); }));
   const byKey = {}; items.forEach(it => byKey[it.key] = it);
@@ -1519,7 +1521,7 @@ function renderQuick() {
   items.sort((a, b) => secRank(a.sec) - secRank(b.sec));
   $("#main").innerHTML = `<div class="eyebrow">复习 · 速认模式</div><h1>速认模式</h1>
     <p class="note" style="max-width:46em">只看「看到」和例题。先在心里说出：这是哪一类、用什么方法、第一步做什么，再点核对。说不出来就点 ☆。</p>
-    <div class="toolbar"><div class="chips">${chipBtn("scope", "all", "全部", o.scope === "all")}${chipBtn("scope", "weak", "只看薄弱", o.scope === "weak")}${secs.map(id => chipBtn("scope", id, id.startsWith("c") ? "章末" : id, o.scope === id)).join("")}</div><span class="tally">${items.length} 张</span></div>
+    <div class="toolbar"><div class="chips">${chipBtn("scope", "test", "周测（错题 + ☆ + 期末必会）", o.scope === "test")}${chipBtn("scope", "all", "全部", o.scope === "all")}${chipBtn("scope", "weak", "只看薄弱", o.scope === "weak")}${secs.map(id => chipBtn("scope", id, id.startsWith("c") ? "章末" : id, o.scope === id)).join("")}</div><span class="tally">${items.length} 张</span></div>
     ${items.map((it, i) => { const t = it.obj; return `<article class="qk panel" data-k="${qa(it.key)}"><div class="wk-top"><span class="tc-no">${i + 1}</span><span class="src">${esc(secLabel(it.sec))}</span></div>
       <div class="row"><span class="lab">看到</span><div>${md(t.signal)}</div></div>
       <div class="row"><span class="lab">例题</span><div>${md(t.example.q)}<div class="src">${esc(t.example.src)}</div></div></div>
@@ -1535,16 +1537,17 @@ function renderQuick() {
 }
 
 let sp = null, spTimer = null;
+const SP_LV = [["ok", "自己做出"], ["hint", "看提示做出"], ["see", "看讲解"], ["no", "没做出"]];
 function stopSampleTimer() { if (spTimer) { clearInterval(spTimer); spTimer = null; } }
 function renderSample() {
   curSec = null; stopSampleTimer();
-  const o = Object.assign({ scope: "all", n: 10, sec: 30 }, store.ui.sp || {});
+  const o = Object.assign({ scope: "test", n: 8, sec: 75 }, store.ui.sp || {}); if (!store.ui.sp || !store.ui.sp.v2) { o.scope = "test"; o.n = 8; o.sec = 75; o.v2 = 1; }
   $("#main").innerHTML = `<div class="eyebrow">复习 · 限时抽题</div><h1>限时抽题</h1>
     <div class="rv-setup panel">
       <div class="line"><span>范围</span><div class="chips">${chipBtn("scope", "all", "全部", o.scope === "all")}${chipBtn("scope", "weak", "只看薄弱", o.scope === "weak")}${chipBtn("scope", "end", "只看章末", o.scope === "end")}</div></div>
-      <div class="line"><span>题数</span><div class="chips">${[10, 20].map(n => chipBtn("n", n, n + " 题", o.n === n)).join("")}</div></div>
-      <div class="line"><span>每题</span><div class="chips">${[20, 30, 60].map(n => chipBtn("sec", n, n + " 秒", o.sec === n)).join("")}</div></div>
-      <div class="line"><button class="btn primary" id="spStart" type="button">开始</button><span class="note">题型、易错点、混合题打乱抽。每题先在限定时间内说出方法和第一步，时间到自动翻出答案，再自评。</span></div>
+      <div class="line"><span>题数</span><div class="chips">${[8, 10, 20].map(n => chipBtn("n", n, n + " 题", o.n === n)).join("")}</div></div>
+      <div class="line"><span>每题</span><div class="chips">${[30, 75, 120].map(n => chipBtn("sec", n, n + " 秒", o.sec === n)).join("")}</div></div>
+      <div class="line"><button class="btn primary" id="spStart" type="button">开始</button><span class="note">周测默认 8 题、每题 75 秒，共 10 分钟。闭卷，在限定时间内写出方法和第一步；翻答案后按四档记：自己做出、看提示做出、看讲解、没做出。后三档自动排进错题重做。</span></div>
     </div>`;
   const set = (a, f) => $$(`[data-${a}]`).forEach(b => b.addEventListener("click", () => { f(b.dataset[a]); store.ui.sp = o; save(); renderSample(); }));
   set("scope", v => o.scope = v); set("n", v => o.n = +v); set("sec", v => o.sec = +v);
@@ -1552,11 +1555,12 @@ function renderSample() {
 }
 function startSample(o) {
   let pool = allItems(true).filter(it => ["type", "mx", "pit"].includes(it.kind));
-  if (o.scope === "weak") pool = pool.filter(it => reasons(it.key).length);
+  if (o.scope === "test") { const w = pool.filter(it => srsOf(it.key) || store.stars[it.key]), f = pool.filter(it => !w.includes(it) && it.kind === "type" && it.obj.level === "期末"), rest = pool.filter(it => !w.includes(it) && !f.includes(it)); pool = shuffle(w).slice(0, Math.ceil(o.n / 2)); pool = pool.concat(shuffle(f.length ? f : rest).slice(0, o.n - pool.length)); if (pool.length < o.n) pool = pool.concat(shuffle(rest.filter(it => !pool.includes(it))).slice(0, o.n - pool.length)); }
+  else if (o.scope === "weak") pool = pool.filter(it => reasons(it.key).length);
   else if (o.scope === "end") pool = pool.filter(it => String(it.sec.id).startsWith("c"));
   const pick = shuffle(pool).slice(0, o.n);
   if (!pick.length) { $("#main").insertAdjacentHTML("beforeend", `<p class="msg">这个范围里没有可抽的题。</p>`); return; }
-  sp = { q: pick, i: 0, sec: o.sec, before: {} };
+  sp = { q: pick, i: 0, sec: o.sec, before: {}, res: {} };
   pick.forEach(it => sp.before[it.key] = (store.marks[it.key] || []).filter(x => x.r !== "mid").length);
   nextSample();
 }
@@ -1583,9 +1587,16 @@ function nextSample() {
     if (shown) return; shown = true; stopSampleTimer();
     $("#spRow").hidden = true; if (late) $("#spBar").classList.add("late");
     const ans = $("#spAns"); ans.hidden = false;
-    ans.innerHTML = (late ? `<div class="note" style="color:var(--bad)">时间到</div>` : "") + (it.kind === "type" ? `<div><b>${md(it.obj.name)}</b></div>` : "") + answerHtml(it) + rateBox(it.key)
-      + `<div class="rv-acts"><button class="btn primary" id="spNext" type="button">${sp.i + 1 >= sp.q.length ? "看结果" : "下一题"}</button><a class="btn" href="#${it.sec.id}:${itemTarget(it)}">去这一节</a></div>`;
-    bindRate(ans); typeset(ans);
+    ans.innerHTML = (late ? `<div class="note" style="color:var(--bad)">时间到</div>` : "") + (it.kind === "type" ? `<div><b>${md(it.obj.name)}</b></div>` : "") + answerHtml(it)
+      + `<div class="rv-acts sp-lv">${SP_LV.map(([v, l]) => `<button class="rbtn ${v === "ok" ? "r-ok" : v === "hint" ? "r-hint" : "r-bad"}" type="button" data-lv="${v}">${l}</button>`).join("")}</div>`
+      + `<div class="rv-acts"><button class="btn primary" id="spNext" type="button" disabled>${sp.i + 1 >= sp.q.length ? "看结果" : "下一题"}</button><a class="btn" href="#${it.sec.id}:${itemTarget(it)}">去这一节</a></div>`;
+    typeset(ans);
+    $$("[data-lv]", ans).forEach(b => b.addEventListener("click", () => {
+      $$("[data-lv]", ans).forEach(x => x.classList.toggle("on", x === b));
+      const lv = b.dataset.lv, r = lv === "ok" ? "ok" : lv === "hint" ? "hint" : "bad";
+      if (!sp.res[it.key]) { const h = (store.marks[it.key] = store.marks[it.key] || []); h.push({ d: today(), r, t: Date.now() }); if (h.length > 20) store.marks[it.key] = h.slice(-20); srsPush(it.key, r === "ok"); save(); }
+      sp.res[it.key] = lv; $("#spNext").disabled = false;
+    }));
     $("#spNext").addEventListener("click", () => { sp.i++; nextSample(); });
   };
   $("#spShow").addEventListener("click", () => reveal(false));
@@ -1595,13 +1606,15 @@ function nextSample() {
 }
 function finishSample() {
   stopSampleTimer();
-  const rated = { ok: [], mid: [], bad: [], none: [] };
-  sp.q.forEach(it => { const h = (store.marks[it.key] || []).filter(x => x.r !== "mid"); if (h.length > sp.before[it.key]) rated[h[h.length - 1].r].push(it); else rated.none.push(it); });
-  const list = rated.bad;
+  const cnt = { ok: 0, hint: 0, see: 0, no: 0 }, back = [];
+  sp.q.forEach(it => { const v = sp.res[it.key]; if (v) cnt[v]++; if (v && v !== "ok") back.push(it); });
+  const n = Object.values(cnt).reduce((a, b) => a + b, 0);
+  const line = `周测 ${n} 题：自己做出 ${cnt.ok}，看提示做出 ${cnt.hint}，看讲解 ${cnt.see}，没做出 ${cnt.no}`;
   $("#main").innerHTML = `<div class="eyebrow">限时抽题</div><h1>本轮结束</h1>
-    <div class="stats"><span><b>${rated.ok.length}</b>✓</span><span><b>${rated.bad.length}</b>✗</span><span><b>${rated.none.length}</b>没评</span></div>
-    ${list.length ? `<h3 style="margin:16px 0 6px">需要回头看的</h3>${list.map(it => `<div class="wk panel"><div class="wk-top"><span class="rv-kind k-${it.kind}">${KIND_NAME[it.kind]}</span><span class="wk-t">${md(itemTitle(it))}</span><a class="btn" href="#${it.sec.id}:${itemTarget(it)}">去看</a></div></div>`).join("")}` : `<p>这一轮没有 ✗。</p>`}
-    <p style="margin-top:14px"><a class="btn primary" href="#sample" id="spAgain">再来一轮</a> <a class="btn" href="#weak">看薄弱清单</a></p>`;
+    <div class="stats"><span><b>${cnt.ok}</b>自己做出</span><span><b>${cnt.hint}</b>看提示做出</span><span><b>${cnt.see}</b>看讲解</span><span><b>${cnt.no}</b>没做出</span></div>
+    <p class="note">复制这一行写进学习日志：</p><pre class="code" style="user-select:all">${esc(line)}</pre>
+    ${back.length ? `<h3 style="margin:16px 0 6px">已排进错题重做（第 3 天、第 10 天）</h3>${back.map(it => `<div class="wk panel"><div class="wk-top"><span class="rv-kind k-${it.kind}">${KIND_NAME[it.kind]}</span><span class="wk-t">${md(itemTitle(it))}</span><a class="btn" href="#${it.sec.id}:${itemTarget(it)}">去看</a></div></div>`).join("")}` : `<p>这一轮全部自己做出。</p>`}
+    <p style="margin-top:14px"><a class="btn primary" href="#sample" id="spAgain">再来一轮</a> <a class="btn" href="#today">错题重做</a></p>`;
   typeset($("#main")); sp = null; updateDot();
   $("#spAgain").addEventListener("click", e => { e.preventDefault(); renderSample(); });
 }
@@ -1717,7 +1730,7 @@ function wrongCard(w) {
   const key = "w/" + w.id, d = w.data || {};
   const infos = wrongLinks(w).map(keyInfo).filter(Boolean);
   const link = infos.length ? `<div class="wr-links"><span class="lab">对应知识点和题型 →</span>${infos.map(x => `<a class="chip" href="${esc(x.href)}">${esc(x.label)}</a>`).join("")}</div>` : "";
-  return `<article class="wr panel" id="w${w.id}"><div class="wk-top"><span class="rv-kind k-wr">错题 ${w.id}</span>${w.teacher ? `<span class="wr-teach" title="老师补充题">师</span>` : ""}<span class="src">${esc(w.source || "")}</span>${(() => { const r = weekMark(w.id); return `<span class="wr-wk ${r}">${r === "ok" ? "本周已重做 ✓" : r === "bad" ? "本周已重做 ✗" : "本周未重做"}</span>`; })()}${w.cause ? `<span class="wr-cause">${esc(w.cause)}</span>` : ""}<span class="src">${esc((w.created || "").slice(0, 10))}</span></div>
+  return `<article class="wr panel" id="w${w.id}"><div class="wk-top"><span class="rv-kind k-wr">错题 ${w.id}</span>${w.teacher ? `<span class="wr-teach" title="老师补充题">师</span>` : ""}<span class="src">${esc(w.source || "")}</span>${(() => { const st = statusOf("w/" + w.id); return `<span class="wr-wk ${st.cls === "s-learned" ? "ok" : st.cls === "s-bad" ? "bad" : ""}">${esc(st.text)}</span>`; })()}${w.cause ? `<span class="wr-cause">${esc(w.cause)}</span>` : ""}<span class="src">${esc((w.created || "").slice(0, 10))}</span></div>
     <h3 style="margin:6px 0">${md(d.title || "")}</h3>${wrongBody(w)}
     <div class="rate-box" data-k="${qa(key)}">${rateInner(key)}</div>${link}</article>`;
 }
@@ -1729,20 +1742,20 @@ function renderWrong(tgt) {
     if (wrOpt.cause !== "all" && w.cause !== wrOpt.cause) return false;
     if (wrOpt.sec !== "all" && w.section !== wrOpt.sec) return false;
     const st = statusOf("w/" + w.id).text;
-    if (wrOpt.st === "todo" && st !== "未做" && !/^✗/.test(st)) return false;
-    if (wrOpt.st === "done" && st !== "已学会") return false;
-    if (wrOpt.st === "week" && weekMark(w.id)) return false;
+    if (wrOpt.st === "todo" && !srsOf("w/" + w.id)) return false;
+    if (wrOpt.st === "done" && st !== "已清掉") return false;
+    if (wrOpt.st === "week" && !(srsOf("w/" + w.id) && srsOf("w/" + w.id).due <= today())) return false;
     if (q && !JSON.stringify(w).toLowerCase().includes(q)) return false;
     return true;
   }).sort((a, b) => b.id - a.id);
   const opt = (v, l, cur) => `<option value="${qa(v)}"${cur === v ? " selected" : ""}>${esc(l)}</option>`;
   $("#main").innerHTML = `<div class="eyebrow">错题区</div><h1>错题区</h1>
-    <p class="note" style="max-width:46em">每周末把错题重做一遍：先自己做，再点开错因和正解，在卡片上自评 ✓ ✗ 就记为本周已重做。连续两次（不同天）独立做对才算学会。「师」是老师补充题。</p>
-    ${(() => { const wk = WRONG.map(w => weekMark(w.id)), cnt = c => WRONG.filter(w => w.cause === c).length;
-      return `<div class="wr-sum"><span class="lab">本周重做</span><b>${wk.filter(Boolean).length} / ${WRONG.length}</b><span class="note">做对 ${wk.filter(r => r === "ok").length}</span><span class="lab" style="margin-left:10px">错因累计</span>${CAUSES.map(c => `<a class="chip${wrOpt.cause === c ? " on" : ""}" href="javascript:void 0" data-cause="${qa(c)}">${esc(c)} ${cnt(c)}</a>`).join("")}</div>`; })()}
+    <p class="note" style="max-width:46em">每道错题收录后第 3 天、第 10 天各重做一次（克排进滴答）：先在 GoodNotes 里闭卷做，再点开错因和正解。做出来点「✓ 重做做出」，没做出点 ✗，看了提示点「提示」。两次都自己做出就清掉。「师」是老师补充题。</p>
+    ${(() => { const due = WRONG.filter(w => { const s = srsOf("w/" + w.id); return s && s.due <= today(); }).length, open = WRONG.filter(w => srsOf("w/" + w.id)).length, cnt = c => WRONG.filter(w => w.cause === c).length;
+      return `<div class="wr-sum"><span class="lab">今天到期</span><b>${due}</b><span class="note">待重做 ${open} · 已清掉 ${WRONG.length - open}</span><span class="lab" style="margin-left:10px">错因累计</span>${CAUSES.map(c => `<a class="chip${wrOpt.cause === c ? " on" : ""}" href="javascript:void 0" data-cause="${qa(c)}">${esc(c)} ${cnt(c)}</a>`).join("")}</div>`; })()}
     <div class="wr-bar"><select id="wrCause">${opt("all", "全部错因", wrOpt.cause)}${CAUSES.map(c => opt(c, c, wrOpt.cause)).join("")}</select>
       <select id="wrSec">${opt("all", "全部章节", wrOpt.sec)}${secs.map(c => opt(c, c, wrOpt.sec)).join("")}</select>
-      <select id="wrSt">${opt("all", "全部状态", wrOpt.st)}${opt("todo", "还没学会", wrOpt.st)}${opt("done", "已学会", wrOpt.st)}${opt("week", "本周未重做", wrOpt.st)}</select>
+      <select id="wrSt">${opt("all", "全部状态", wrOpt.st)}${opt("week", "今天到期", wrOpt.st)}${opt("todo", "待重做", wrOpt.st)}${opt("done", "已清掉", wrOpt.st)}</select>
       <input id="wrQ" type="search" placeholder="搜题干、错解" value="${qa(wrOpt.q)}"><span class="tally">${items.length} / ${WRONG.length} 题</span></div>
     <div id="wrList">${items.map(wrongCard).join("") || `<div class="empty panel"><h2>这里还是空的</h2><p>把做错的题发给我，我会按错因整理后收进来。</p></div>`}</div>`;
   const re = () => renderWrong();
@@ -1813,7 +1826,7 @@ window.addEventListener("hashchange", route);
 /* ===== 14. 并行载入数据文件，全部到齐再显示 ===== */
 (function loadAll() {
   let left = DATA_FILES.length;
-  const done = () => { if (--left === 0) { applySeeds(); migrateSrs(); mergeWrong(); route(); if (syncOn()) { syncNow(); loadWrong(); } } };
+  const done = () => { if (--left === 0) { applySeeds(); mergeWrong(); migrateSrs(); route(); if (syncOn()) { syncNow(); loadWrong(); } } };
   DATA_FILES.forEach(f => {
     const el = document.createElement("script");
     el.src = f; el.onload = done;
